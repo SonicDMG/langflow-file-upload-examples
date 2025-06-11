@@ -1,8 +1,8 @@
 // Langflow configuration constants
 const LANGFLOW_URL = 'http://127.0.0.1:7860';
 const LANGFLOW_FILE_UPLOAD_URL = `${LANGFLOW_URL}/api/v2/files/`;
-const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/28eaf8b0-822a-4855-addd-f6dc73d051ba`;
-const FILE_COMPONENT_NAME = 'File-VMznN';
+//const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/28eaf8b0-822a-4855-addd-f6dc73d051ba`;
+//const FILE_COMPONENT_NAME = 'File-VMznN';
 
 import axios from 'axios';
 import FormData from 'form-data';
@@ -26,6 +26,12 @@ export async function POST(request) {
   // Get the file from the form data
   const formData = await parseMultipartForm(request);
   const { file, tempPath, fileName, fileType } = getUploadedFile(formData);
+  const flowId = formData.fields?.flowId;
+  const fileComponentName = formData.fields?.fileComponentName;
+
+  if (!flowId || !fileComponentName) {
+    return new Response(JSON.stringify({ error: 'Missing flowId or fileComponentName' }), { status: 400 });
+  }
 
   // Restrict to allowed file types (images and text)
   // Optional, but good practice to avoid uploading invalid file types
@@ -80,11 +86,13 @@ export async function POST(request) {
   // Construct the payload for Langflow (no text input)
   const langflowPayload = {
     tweaks: {
-      [FILE_COMPONENT_NAME]: { path: uploadedFilePath }
+      [fileComponentName]: { path: uploadedFilePath }
     }
   };
 
-  // Configure the request to the Langflow for the Langflow workflow
+  // Build the dynamic flow run URL
+  const langflowFlowRunUrl = `${LANGFLOW_URL}/api/v1/run/${flowId}`;
+
   const options = {
     method: 'POST',
     headers: {
@@ -93,25 +101,18 @@ export async function POST(request) {
     body: JSON.stringify(langflowPayload)
   };
 
-  // Send the request to the Langflow for the Langflow workflow
   try {
-    const response = await fetch(LANGFLOW_FLOW_RUN_URL, options);
+    const response = await fetch(langflowFlowRunUrl, options);
     const data = await response.json();
     if (!response.ok) {
       return new Response(JSON.stringify(
-        { error: 'Failed to fetch from Langflow',
-          langflowResponse: data
-        }
+        { error: 'Failed to fetch from Langflow', langflowResponse: data }
       ), { status: response.status });
     }
-    // Parse the response message from the Langflow agentic AI workflow
     return sendLangflowApiResponse({ fileUploadResponse, langflowData: data, status: 200 });
-
   } catch (err) {
     return new Response(JSON.stringify(
-      { error: 'Internal server error when calling Langflow',
-        details: err.message
-      }
+      { error: 'Internal server error when calling Langflow', details: err.message }
     ), { status: 500 });
   }
 } 

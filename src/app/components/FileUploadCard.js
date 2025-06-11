@@ -11,6 +11,9 @@ const TEXT_ALLOWED_TYPES = [
 ];
 
 export default function FileUploadCard() {
+  const [host, setHost] = useState("http://127.0.0.1:7860");
+  const [flowId, setFlowId] = useState("");
+  const [fileComponentName, setFileComponentName] = useState("");
   const [fileOnly, setFileOnly] = useState(null);
   const [fileOnlyError, setFileOnlyError] = useState("");
   const [fileOnlyResponse, setFileOnlyResponse] = useState(null);
@@ -20,6 +23,10 @@ export default function FileUploadCard() {
   const handleFileOnlySubmit = async (e) => {
     e.preventDefault();
     setFileOnlyResponse(null);
+    if (!host || !flowId || !fileComponentName) {
+      setFileOnlyError("Please provide Host, Flow ID, and File Component Name.");
+      return;
+    }
     if (!fileOnly) {
       setFileOnlyError("Please select a file to upload.");
       return;
@@ -28,6 +35,8 @@ export default function FileUploadCard() {
     setFileOnlyLoading(true);
     const formData = new FormData();
     formData.append('file', fileOnly);
+    formData.append('flowId', flowId);
+    formData.append('fileComponentName', fileComponentName);
     try {
       const res = await fetch('/api/file-only', {
         method: 'POST',
@@ -45,10 +54,48 @@ export default function FileUploadCard() {
     }
   };
 
+  // Construct endpoints using host
+  const safeHost = host || "http://127.0.0.1:7860";
+  const fileUploadEndpoint = `${safeHost.replace(/\/$/, "")}/api/v2/files/`;
+  const langflowRunEndpoint = flowId ? `${safeHost.replace(/\/$/, "")}/api/v1/run/${flowId}` : `${safeHost.replace(/\/$/, "")}/api/v1/run/<flowId>`;
+  // Use actual uploaded file path if available, otherwise placeholder
+  const uploadedFilePath = fileOnlyResponse?.path || fileOnlyResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/file";
+
   return (
     <div className="bg-[#182848] rounded-xl shadow-lg p-6 border border-blue-900">
       <form className="flex flex-col gap-4" onSubmit={handleFileOnlySubmit}>
-        <label htmlFor="fileOnly" className="font-semibold text-blue-200">File Component (Process File Only, No LLM/Agent)</label>
+        <h2 className="text-xl font-semibold text-blue-200 mb-2">File Component (Process File Only, No LLM/Agent)</h2>
+        <label htmlFor="host" className="font-semibold text-blue-200">Host</label>
+        <input
+          id="host"
+          name="host"
+          type="text"
+          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 text-white placeholder-blue-300"
+          placeholder="http://127.0.0.1:7860"
+          value={host}
+          onChange={(e) => setHost(e.target.value)}
+        />
+        <label htmlFor="flowId" className="font-semibold text-blue-200">Flow ID</label>
+        <input
+          id="flowId"
+          name="flowId"
+          type="text"
+          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 text-white placeholder-blue-300"
+          placeholder="Enter Flow ID"
+          value={flowId}
+          onChange={(e) => setFlowId(e.target.value)}
+        />
+        <label htmlFor="fileComponentName" className="font-semibold text-blue-200">File Component Name</label>
+        <input
+          id="fileComponentName"
+          name="fileComponentName"
+          type="text"
+          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 text-white placeholder-blue-300"
+          placeholder="Enter File Component Name"
+          value={fileComponentName}
+          onChange={(e) => setFileComponentName(e.target.value)}
+        />
+        <label htmlFor="fileOnly" className="font-semibold text-blue-200">File</label>
         <input
           id="fileOnly"
           type="file"
@@ -76,6 +123,26 @@ export default function FileUploadCard() {
           {fileOnlyLoading ? (<span className="spinner" />) : "Upload File Only"}
         </button>
       </form>
+      <div className="mt-6 bg-[#22304a] rounded-lg p-4 text-blue-100 text-sm">
+        <div className="mb-2">
+          <span className="font-semibold text-blue-300">File Upload API Endpoint:</span>
+          <pre className="bg-[#182848] rounded p-2 mt-1 overflow-x-auto">{fileUploadEndpoint}</pre>
+        </div>
+        <div className="mb-2">
+          <span className="font-semibold text-blue-300">Langflow Run API Endpoint:</span>
+          <pre className="bg-[#182848] rounded p-2 mt-1 overflow-x-auto">{langflowRunEndpoint}</pre>
+        </div>
+        <div>
+          <span className="font-semibold text-blue-300">Langflow Run Payload:</span>
+          <pre className="bg-[#182848] rounded p-2 mt-1 overflow-x-auto">{`{
+  "tweaks": {
+    "${fileComponentName || 'File-Component-Name'}": {
+      "path": "${uploadedFilePath}"
+    }
+  }
+}`}</pre>
+        </div>
+      </div>
       {fileOnlyResponse && (
         <div className="mt-6 bg-[#22304a] rounded-lg p-4">
           <h2 className="text-lg font-semibold mb-2 text-blue-400">Upload Response</h2>
