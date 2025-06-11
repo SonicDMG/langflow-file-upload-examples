@@ -1,4 +1,6 @@
 import React, { useRef, useState } from "react";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const TEXT_ACCEPTED_FILE_TYPES = ".txt,.pdf,.doc,.docx,.rtf,.csv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/rtf,text/plain,text/csv";
 const TEXT_ALLOWED_TYPES = [
@@ -61,45 +63,53 @@ export default function FileUploadCard() {
   // Use actual uploaded file path if available, otherwise placeholder
   const uploadedFilePath = fileOnlyResponse?.path || fileOnlyResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/file";
 
+  const payloadPreview = JSON.stringify({
+    tweaks: {
+      [fileComponentName || 'File-Component-Name']: {
+        path: uploadedFilePath
+      }
+    }
+  }, null, 2);
+
   return (
-    <div className="bg-[#182848] rounded-xl shadow-lg p-6 border border-blue-900">
+    <div className="bg-[#19213a] rounded-xl shadow-lg p-8 border border-[#2a3b6e]">
       <form className="flex flex-col gap-4" onSubmit={handleFileOnlySubmit}>
-        <h2 className="text-xl font-semibold text-blue-200 mb-2">File Component (Process File Only, No LLM/Agent)</h2>
-        <label htmlFor="host" className="font-semibold text-blue-200">Host</label>
+        <h2 className="text-xl font-semibold text-[#b3cfff] mb-2">File Component (Process File Only, No LLM/Agent)</h2>
+        <label htmlFor="host" className="font-semibold text-[#b3cfff]">Host</label>
         <input
           id="host"
           name="host"
           type="text"
-          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 text-white placeholder-blue-300"
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
           placeholder="http://127.0.0.1:7860"
           value={host}
           onChange={(e) => setHost(e.target.value)}
         />
-        <label htmlFor="flowId" className="font-semibold text-blue-200">Flow ID</label>
+        <label htmlFor="flowId" className="font-semibold text-[#b3cfff]">Flow ID</label>
         <input
           id="flowId"
           name="flowId"
           type="text"
-          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 text-white placeholder-blue-300"
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
           placeholder="Enter Flow ID"
           value={flowId}
           onChange={(e) => setFlowId(e.target.value)}
         />
-        <label htmlFor="fileComponentName" className="font-semibold text-blue-200">File Component Name</label>
+        <label htmlFor="fileComponentName" className="font-semibold text-[#b3cfff]">File Component Name</label>
         <input
           id="fileComponentName"
           name="fileComponentName"
           type="text"
-          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 text-white placeholder-blue-300"
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
           placeholder="Enter File Component Name"
           value={fileComponentName}
           onChange={(e) => setFileComponentName(e.target.value)}
         />
-        <label htmlFor="fileOnly" className="font-semibold text-blue-200">File</label>
+        <label htmlFor="fileOnly" className="font-semibold text-[#b3cfff]">File</label>
         <input
           id="fileOnly"
           type="file"
-          className="rounded-lg px-4 py-3 bg-[#22304a] border border-blue-800 cursor-pointer text-white"
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] cursor-pointer text-[#b3cfff]"
           ref={fileOnlyInputRef}
           accept={TEXT_ACCEPTED_FILE_TYPES}
           onChange={(e) => {
@@ -117,38 +127,34 @@ export default function FileUploadCard() {
         {fileOnlyError && <p className="text-red-400 text-sm mt-1">{fileOnlyError}</p>}
         <button
           type="submit"
-          className="mt-2 bg-blue-700 hover:bg-blue-800 transition-colors text-white font-semibold py-3 px-4 rounded-lg disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#182848]"
+          className="mt-2 bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors text-white font-semibold py-3 px-4 rounded-lg disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:ring-offset-2 focus:ring-offset-[#19213a]"
           disabled={fileOnlyLoading}
         >
           {fileOnlyLoading ? (<span className="spinner" />) : "Upload File Only"}
         </button>
       </form>
-      <div className="mt-6 bg-[#22304a] rounded-lg p-4 text-blue-100 text-sm">
+      <div className="mt-6 bg-[#232e4a] rounded-lg p-4 text-[#b3cfff] text-sm">
         <div className="mb-2">
-          <span className="font-semibold text-blue-300">File Upload API Endpoint:</span>
-          <pre className="bg-[#182848] rounded p-2 mt-1 overflow-x-auto">{fileUploadEndpoint}</pre>
+          <span className="font-semibold text-[#7ea2e3]">File Upload API Endpoint:</span>
+          <pre className="bg-[#19213a] rounded p-2 mt-1 overflow-x-auto">{fileUploadEndpoint}</pre>
         </div>
         <div className="mb-2">
-          <span className="font-semibold text-blue-300">Langflow Run API Endpoint:</span>
-          <pre className="bg-[#182848] rounded p-2 mt-1 overflow-x-auto">{langflowRunEndpoint}</pre>
+          <span className="font-semibold text-[#7ea2e3]">Langflow Run API Endpoint:</span>
+          <pre className="bg-[#19213a] rounded p-2 mt-1 overflow-x-auto">{langflowRunEndpoint}</pre>
         </div>
         <div>
-          <span className="font-semibold text-blue-300">Langflow Run Payload:</span>
-          <pre className="bg-[#182848] rounded p-2 mt-1 overflow-x-auto">{`{
-  "tweaks": {
-    "${fileComponentName || 'File-Component-Name'}": {
-      "path": "${uploadedFilePath}"
-    }
-  }
-}`}</pre>
+          <span className="font-semibold text-[#7ea2e3]">Langflow Run Payload:</span>
+          <SyntaxHighlighter language="json" style={atomDark} customStyle={{ borderRadius: '0.5rem', background: '#19213a', fontSize: '0.95em', padding: '1em', marginTop: '0.5em' }}>
+            {payloadPreview}
+          </SyntaxHighlighter>
         </div>
       </div>
       {fileOnlyResponse && (
-        <div className="mt-6 bg-[#22304a] rounded-lg p-4">
-          <h2 className="text-lg font-semibold mb-2 text-blue-400">Upload Response</h2>
-          <pre className="whitespace-pre-wrap break-all text-sm bg-[#182848] p-4 rounded-lg overflow-x-auto max-h-96 overflow-auto">
+        <div className="mt-6 bg-[#232e4a] rounded-lg p-4">
+          <h2 className="text-lg font-semibold mb-2 text-[#b3cfff]">Upload Response</h2>
+          <SyntaxHighlighter language="json" style={atomDark} customStyle={{ borderRadius: '0.5rem', background: '#19213a', fontSize: '0.95em', padding: '1em', marginTop: '0.5em', maxHeight: '24em', overflow: 'auto' }}>
             {JSON.stringify(fileOnlyResponse, null, 2)}
-          </pre>
+          </SyntaxHighlighter>
         </div>
       )}
     </div>
