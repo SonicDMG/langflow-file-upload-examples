@@ -16,10 +16,22 @@ export const config = {
 };
 
 export async function POST(request) {
-  // Parse multipart/form-data coming from the frontend webui page.js and 
-  // grab the file input from the form data
+  // Parse multipart/form-data
   let formData = await parseMultipartForm(request);
   let { tempPath, fileName, fileType } = getUploadedFile(formData);
+
+  // Get dynamic fields from form data
+  function getFieldValue(field, fallback = undefined) {
+    if (Array.isArray(field)) return (field[0] ?? fallback)?.trim?.() ?? fallback;
+    return field?.trim?.() ?? fallback;
+  }
+  const host = getFieldValue(formData.fields.host, 'http://127.0.0.1:7860');
+  const flowId = getFieldValue(formData.fields.flowId);
+  const fileComponentName = getFieldValue(formData.fields.fileComponentName);
+
+  if (!host || !flowId || !fileComponentName) {
+    return new Response(JSON.stringify({ error: 'Missing host, flowId, or fileComponentName' }), { status: 400 });
+  }
 
   // Restrict to allowed file types
   if (formData && formData.files && formData.files.file) {
@@ -30,25 +42,18 @@ export async function POST(request) {
     }
   }
 
-  // We'll need the file upload response and the uploaded file path
   let fileUploadResponse;
   let uploadedFilePath;
 
-  // If there is a file, upload it to Langflow file V2 API, preserving original filename
-  // Check https://docs.langflow.org/api/upload-user-file for the API and code example
+  // Upload file to Langflow V2 API
   if (tempPath) {
-    // Create a FormData object to send the file to the Langflow file API
     let data = new FormData();
-
-    // Create a read stream from the file and preserve the original filename
     let { stream, options } = createFileReadStream(tempPath, fileName);
     data.append('file', stream, options);
-
-    // Configure the request to the Langflow V2 file API
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'http://127.0.0.1:7860/api/v2/files/',
+      url: `${host.replace(/\/$/, '')}/api/v2/files/`,
       headers: {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
@@ -58,13 +63,13 @@ export async function POST(request) {
     };
     let uploadResponse = await axios.request(config);
     fileUploadResponse = uploadResponse.data;
-    console.log('fileUploadResponse', fileUploadResponse);
-    uploadedFilePath = fileUploadResponse?.path; // V2 API uses path
+    uploadedFilePath = fileUploadResponse?.path;
   }
 
+  // Build payload with dynamic fileComponentName
   let langflowPayload = {
     tweaks: {
-      'File-VMznN': { path: uploadedFilePath }
+      [fileComponentName]: { path: uploadedFilePath }
     }
   };
 
@@ -76,7 +81,8 @@ export async function POST(request) {
     body: JSON.stringify(langflowPayload)
   };
 
-  let response = await fetch('http://127.0.0.1:7860/api/v1/run/28eaf8b0-822a-4855-addd-f6dc73d051ba', options);
+  // Call Langflow run endpoint with dynamic host and flowId
+  let response = await fetch(`${host.replace(/\/$/, '')}/api/v1/run/${flowId}`, options);
   let data = await response.json();
   if (!response.ok) {
     return new Response(JSON.stringify(
