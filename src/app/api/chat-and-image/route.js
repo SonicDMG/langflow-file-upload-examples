@@ -1,9 +1,9 @@
 // Langflow configuration constants
-const LANGFLOW_FLOW_ID = '8d49a757-15bf-4b12-acb1-89a125ed2c5e'
-const CHAT_INPUT_NAME = 'ChatInput-SZLue';
-const LANGFLOW_URL = 'http://127.0.0.1:7860';
-const LANGFLOW_FILE_UPLOAD_URL = `${LANGFLOW_URL}/api/v1/files/upload/${LANGFLOW_FLOW_ID}`;
-const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/${LANGFLOW_FLOW_ID}`;
+//const LANGFLOW_FLOW_ID = '8d49a757-15bf-4b12-acb1-89a125ed2c5e'
+//const CHAT_INPUT_NAME = 'ChatInput-SZLue';
+//const LANGFLOW_URL = 'http://127.0.0.1:7860';
+//const LANGFLOW_FILE_UPLOAD_URL = `${LANGFLOW_URL}/api/v1/files/upload/${LANGFLOW_FLOW_ID}`;
+//const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/${LANGFLOW_FLOW_ID}`;
 
 import axios from 'axios';
 import FormData from 'form-data';
@@ -29,6 +29,19 @@ export async function POST(request) {
   const { file, tempPath, fileName, fileType } = getUploadedFile(formData);
   let textInput = formData.fields.textInput;
   if (Array.isArray(textInput)) textInput = textInput[0];
+  const hostRaw = formData.fields?.host || 'http://127.0.0.1:7860';
+  const host = Array.isArray(hostRaw) ? hostRaw[0] : hostRaw;
+  const flowIdRaw = formData.fields?.flowId;
+  const flowId = Array.isArray(flowIdRaw) ? flowIdRaw[0] : flowIdRaw;
+  const fileComponentNameRaw = formData.fields?.fileComponentName;
+  const fileComponentName = Array.isArray(fileComponentNameRaw) ? fileComponentNameRaw[0] : fileComponentNameRaw;
+
+  if (!host || !flowId || !fileComponentName) {
+    return new Response(JSON.stringify({ error: 'Missing host, flowId, or fileComponentName' }), { status: 400 });
+  }
+
+  const FILE_UPLOAD_URL = `${host.replace(/\/$/, "")}/api/v1/files/upload/${flowId}`;
+  const FLOW_RUN_URL = `${host.replace(/\/$/, "")}/api/v1/run/${flowId}`;
 
   // Restrict to allowed file types (images and text)
   // Optional, but good practice to avoid uploading invalid file types
@@ -56,7 +69,7 @@ export async function POST(request) {
       const config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: LANGFLOW_FILE_UPLOAD_URL, // example:'https://docs.langflow.org/api/v1/files/upload/:flow_id'
+        url: FILE_UPLOAD_URL, // example:'https://docs.langflow.org/api/v1/files/upload/:flow_id'
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -87,9 +100,9 @@ export async function POST(request) {
     output_type: 'chat',
     input_type: 'chat',
     tweaks: {
-      [CHAT_INPUT_NAME]: { // example: 'ChatInput-YhLJ4'
-        files: uploadedFilePath, // example: "8d49a757-15bf-4b12-acb1-89a125ed2c5e/2025-06-11_12-55-40_og-image-1200x630.png"
-        input_value: textInput // example: "What is in the image?"
+      [fileComponentName]: {
+        files: uploadedFilePath,
+        input_value: textInput
       }
     }
   };
@@ -105,7 +118,7 @@ export async function POST(request) {
 
   // Send the request to the Langflow for the Langflow agentic AI workflow
   try {
-    const response = await fetch(`${LANGFLOW_FLOW_RUN_URL}?stream=false`, options);
+    const response = await fetch(`${FLOW_RUN_URL}?stream=false`, options);
     const data = await response.json();
     if (!response.ok) {
       return new Response(JSON.stringify(
