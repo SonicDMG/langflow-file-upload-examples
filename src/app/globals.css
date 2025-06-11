@@ -24,3 +24,55 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Prose Heading Overrides */
+.prose :where(h1):not(:where([class~="not-prose"] *)),
+.prose-invert :where(h1):not(:where([class~="not-prose"] *)) {
+  font-size: 2.25rem !important; /* Approx 36px */
+  line-height: 2.5rem !important;
+  font-weight: 800 !important;
+  margin-top: 1.5em !important;
+  margin-bottom: 0.75em !important;
+}
+
+.prose :where(h2):not(:where([class~="not-prose"] *)),
+.prose-invert :where(h2):not(:where([class~="not-prose"] *)) {
+  font-size: 1.875rem !important; /* Approx 30px */
+  line-height: 2.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.25em !important;
+  margin-bottom: 0.6em !important;
+}
+
+.prose :where(h3):not(:where([class~="not-prose"] *)),
+.prose-invert :where(h3):not(:where([class~="not-prose"] *)) {
+  font-size: 1.5rem !important; /* Approx 24px */
+  line-height: 2rem !important;
+  font-weight: 600 !important;
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* You can add overrides for h4, h5, h6 if needed */
+
+/* Spinner animation for loading buttons */
+.spinner {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top: 2.5px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
