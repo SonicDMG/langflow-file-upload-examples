@@ -107,8 +107,9 @@ const runRes = await fetch('${langflowRunEndpoint}', {
   headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
   body: JSON.stringify(payload)
 });
-const runData = await runRes.json();
-console.log(runData);
+const langflowData = await runRes.json();
+// Output only the message
+console.log(langflowData.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text);
 `;
 
   const nodeCode = `// Node.js example using axios, form-data, and fs
@@ -129,9 +130,12 @@ axios.post('${fileUploadEndpoint}', data, {
 })
 .then(res => {
   // 4. Get the uploaded file path from the response
-  const uploadedPath = res.data.file_path || res.data.path;
+  const uploadedPath = res.data.path;
   // 5. Call the Langflow run endpoint with the uploaded file path
   return axios.post('${langflowRunEndpoint}', {
+    input_value: "Analyze this file",
+    output_type: "chat",
+    input_type: "chat",
     tweaks: {
       '${fileComponentName || 'File-Component-Name'}': {
         path: uploadedPath
@@ -142,8 +146,9 @@ axios.post('${fileUploadEndpoint}', data, {
   });
 })
 .then(res => {
-  // 6. Print the final response
-  console.log(res.data);
+  // 6. Output only the message
+  const langflowData = res.data;
+  console.log(langflowData.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text);
 })
 .catch(err => {
   // 7. Handle errors
@@ -153,6 +158,7 @@ axios.post('${fileUploadEndpoint}', data, {
 
   const pythonCode = `# Python example using requests
 import requests
+import json
 
 # 1. Set the upload URL
 url = "${fileUploadEndpoint}"
@@ -168,18 +174,77 @@ headers = {
 
 # 3. Upload the file to Langflow
 response = requests.request("POST", url, headers=headers, data=payload, files=files)
-
-# 4. Print the response
 print(response.text)
+
+# 4. Get the uploaded file path from the response
+uploaded_data = response.json()
+uploaded_path = uploaded_data.get('path')
+
+# 5. Call the Langflow run endpoint with the uploaded file path
+run_url = "${langflowRunEndpoint}"
+run_payload = {
+    "input_value": "Analyze this file",
+    "output_type": "chat",
+    "input_type": "chat",
+    "tweaks": {
+        "${fileComponentName || 'File-Component-Name'}": {
+            "path": uploaded_path
+        }
+    }
+}
+run_headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'${langflowApiKey ? ",\n    'x-api-key': '" + langflowApiKey + "'" : ""}
+}
+run_response = requests.post(run_url, headers=run_headers, data=json.dumps(run_payload))
+langflow_data = run_response.json()
+# Output only the message
+message = None
+try:
+    message = langflow_data['outputs'][0]['outputs'][0]['results']['message']['data']['text']
+except (KeyError, IndexError, TypeError):
+    pass
+print(message)
 `;
 
-  const curlCode = `# cURL example for uploading a file to Langflow
-# 1. Upload the file
-curl -X POST \
-  "${fileUploadEndpoint}" \
-  -H "Accept: application/json" \
-  -F "file=@${fileName}"${langflowApiKey ? ` \
-  -H "x-api-key: ${langflowApiKey}"` : ''}
+  const curlCode = `#!/bin/bash
+# Bash script for uploading a file and executing the flow in Langflow
+# This script uploads the file, extracts the uploaded path, executes the flow, and prints only the message result
+
+# Clear any existing value of uploaded_path
+unset uploaded_path
+
+# Upload the file and capture the path
+uploaded_path=$(curl -s -X POST \\
+  "${fileUploadEndpoint}" \\
+  -H "Accept: application/json" \\
+  -F "file=@${fileName}"${langflowApiKey ? ` \\
+  -H "x-api-key: ${langflowApiKey}"` : ''} \\
+  | jq -r '.path')
+
+# Verify that we got a valid path
+if [ -z "$uploaded_path" ] || [ "$uploaded_path" = "null" ]; then
+  echo "Error: Failed to get a valid uploaded file path"
+  exit 1
+fi
+
+# Execute the flow with the uploaded path
+curl -s --request POST \\
+  --url "${langflowRunEndpoint}" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json"${langflowApiKey ? ` \\
+  -H "x-api-key: ${langflowApiKey}"` : ''} \\
+  -d '{
+    "input_value": "Analyze this file",
+    "output_type": "chat",
+    "input_type": "chat",
+    "tweaks": {
+      "${fileComponentName || 'File-Component-Name'}": {
+        "path": "'"$uploaded_path"'"
+      }
+    }
+  }' \\
+  | jq -r '.outputs[0].outputs[0].results.message.data.text'
 `;
 
   return (
@@ -211,9 +276,9 @@ curl -X POST \
             payload={payloadPreview}
             title={null}
           />
+          <ResponseSection response={fileOnlyResponse} title="Upload Response" colorClass="text-[#b3cfff]" />
           <CodeSection
             codeExamples={[
-              { label: 'Browser', code: browserCode, language: 'javascript' },
               { label: 'Node.js', code: nodeCode, language: 'javascript' },
               { label: 'Python', code: pythonCode, language: 'python' },
               { label: 'cURL', code: curlCode, language: 'bash' }
@@ -221,7 +286,6 @@ curl -X POST \
             title="Example Code"
             colorClass="text-[#7ea2e3]"
           />
-          <ResponseSection response={fileOnlyResponse} title="Upload Response" colorClass="text-[#b3cfff]" />
         </div>
       </div>
     </div>
