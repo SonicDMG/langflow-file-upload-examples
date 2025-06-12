@@ -11,7 +11,8 @@ const TAB_INFO = [
     card: <FileUploadCard />,
     explanation: {
       heading: "File Only Upload",
-      text: "This component focuses purely on file selection and upload functionality. It provides a clean interface for choosing files with drag-and-drop support and file type validation."
+      text: "This component focuses purely on file selection and upload functionality. It provides a clean interface for choosing files with drag-and-drop support and file type validation.",
+      apiVersion: "Uses Langflow File API v2"
     }
   },
   {
@@ -20,7 +21,8 @@ const TAB_INFO = [
     card: <ChatFileCard />,
     explanation: {
       heading: "Chat + File Upload",
-      text: "This component allows you to upload a file and provide a text input, simulating a chat-like interaction with file context."
+      text: "This component allows you to upload a file and provide a text input, simulating a chat-like interaction with file context.",
+      apiVersion: "Uses Langflow File API v2"
     }
   },
   {
@@ -29,7 +31,8 @@ const TAB_INFO = [
     card: <ChatImageCard />,
     explanation: {
       heading: "Image + Text Upload",
-      text: "Upload an image file along with a text prompt. Useful for flows that process both image and text data together."
+      text: "Upload an image file along with a text prompt. Useful for flows that process both image and text data together.",
+      apiVersion: "Uses Langflow File API v1"
     }
   }
 ];
@@ -60,6 +63,7 @@ export default function Home() {
       {/* Explanation Card */}
       <div className="w-full max-w-4xl mx-auto bg-[#1a223a] border border-[#2a3b6e] rounded-xl p-6 mb-8">
         <h3 className="text-xl font-bold text-[#4ea1f7] mb-2">{currentTab.explanation.heading}</h3>
+        <span className="text-xs text-blue-400 font-semibold block mb-2">{currentTab.explanation.apiVersion}</span>
         <p className="text-blue-100 text-base">{currentTab.explanation.text}</p>
       </div>
       {/* Upload Card */}
