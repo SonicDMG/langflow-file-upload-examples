@@ -1,6 +1,6 @@
 // Langflow configuration constants
-const LANGFLOW_URL = 'http://127.0.0.1:7860';
-const LANGFLOW_FILE_UPLOAD_URL = `${LANGFLOW_URL}/api/v2/files/`;
+//const LANGFLOW_URL = 'http://127.0.0.1:7860';
+//const LANGFLOW_FILE_UPLOAD_URL = `${LANGFLOW_URL}/api/v2/files/`;
 //const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/c60360c2-70a0-4c8d-8dd1-5900979263c6`;
 //const FILE_COMPONENT_NAME = 'File-P6xlj';
 
@@ -34,6 +34,8 @@ export async function POST(request) {
   const flowId = Array.isArray(flowIdRaw) ? flowIdRaw[0] : flowIdRaw;
   const fileComponentNameRaw = formData.fields?.fileComponentName;
   const fileComponentName = Array.isArray(fileComponentNameRaw) ? fileComponentNameRaw[0] : fileComponentNameRaw;
+  const langflowApiKeyRaw = formData.fields?.langflowApiKey;
+  const langflowApiKey = Array.isArray(langflowApiKeyRaw) ? langflowApiKeyRaw[0] : langflowApiKeyRaw;
 
   if (!host || !flowId || !fileComponentName) {
     return new Response(JSON.stringify({ error: 'Missing host, flowId, or fileComponentName' }), { status: 400 });
@@ -65,7 +67,8 @@ export async function POST(request) {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Accept': 'application/json',
-          ...data.getHeaders()
+          ...data.getHeaders(),
+          ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
         },
         data: data
       };
@@ -91,6 +94,7 @@ export async function POST(request) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
     },
     body: JSON.stringify(langflowPayload)
   };

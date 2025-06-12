@@ -28,6 +28,7 @@ export async function POST(request) {
   const host = getFieldValue(formData.fields.host, 'http://127.0.0.1:7860');
   const flowId = getFieldValue(formData.fields.flowId);
   const fileComponentName = getFieldValue(formData.fields.fileComponentName);
+  const langflowApiKey = getFieldValue(formData.fields.langflowApiKey);
 
   if (!host || !flowId || !fileComponentName) {
     return new Response(JSON.stringify({ error: 'Missing host, flowId, or fileComponentName' }), { status: 400 });
@@ -57,7 +58,8 @@ export async function POST(request) {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
-        ...data.getHeaders()
+        ...data.getHeaders(),
+        ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
       },
       data: data
     };
@@ -77,6 +79,7 @@ export async function POST(request) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
     },
     body: JSON.stringify(langflowPayload)
   };

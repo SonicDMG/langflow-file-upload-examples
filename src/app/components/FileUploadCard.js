@@ -21,6 +21,8 @@ export default function FileUploadCard() {
   const [fileOnlyResponse, setFileOnlyResponse] = useState(null);
   const [fileOnlyLoading, setFileOnlyLoading] = useState(false);
   const fileOnlyInputRef = useRef();
+  const [langflowApiKey, setLangflowApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleFileOnlySubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +41,9 @@ export default function FileUploadCard() {
     formData.append('file', fileOnly);
     formData.append('flowId', flowId);
     formData.append('fileComponentName', fileComponentName);
+    console.log('Host value before append:', host);
+    formData.append('host', host);
+    if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
     try {
       const res = await fetch('/api/file-only', {
         method: 'POST',
@@ -70,6 +75,34 @@ export default function FileUploadCard() {
       }
     }
   }, null, 2);
+
+  const codeSnippet = `// 1. Upload the file to Langflow
+const file = /* your File object */;
+const fileForm = new FormData();
+fileForm.append('file', file);
+const uploadRes = await fetch('${fileUploadEndpoint}', {
+  method: 'POST',
+  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}
+});
+const uploadData = await uploadRes.json();
+const uploadedPath = uploadData.path;
+
+// 2. Call the Langflow run endpoint
+const payload = {
+  tweaks: {
+    '${fileComponentName || 'File-Component-Name'}': {
+      path: uploadedPath
+    }
+  }
+};
+const runRes = await fetch('${langflowRunEndpoint}', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
+  body: JSON.stringify(payload)
+});
+const runData = await runRes.json();
+console.log(runData);
+`;
 
   return (
     <div className="bg-[#19213a] rounded-xl shadow-lg p-8 border border-[#2a3b6e]">
@@ -124,6 +157,23 @@ export default function FileUploadCard() {
             }
           }}
         />
+        <label htmlFor="langflowApiKey" className="font-semibold text-[#b3cfff]">Langflow API Key (optional)</label>
+        <input
+          id="langflowApiKey"
+          name="langflowApiKey"
+          type={showApiKey ? "text" : "password"}
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
+          placeholder="Paste your Langflow API Key (optional)"
+          value={langflowApiKey}
+          onChange={(e) => setLangflowApiKey(e.target.value)}
+        />
+        <button
+          type="button"
+          className="text-xs text-blue-300 hover:text-blue-400 mt-1 self-end"
+          onClick={() => setShowApiKey(v => !v)}
+        >
+          {showApiKey ? "Hide" : "Show"} API Key
+        </button>
         {fileOnlyError && <p className="text-red-400 text-sm mt-1">{fileOnlyError}</p>}
         <button
           type="submit"

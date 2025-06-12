@@ -21,6 +21,8 @@ export default function RouteSimpleCard() {
   const [simpleFileResponse, setSimpleFileResponse] = useState(null);
   const [simpleFileLoading, setSimpleFileLoading] = useState(false);
   const simpleFileInputRef = useRef();
+  const [langflowApiKey, setLangflowApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleSimpleFileSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +42,7 @@ export default function RouteSimpleCard() {
     formData.append('flowId', flowId);
     formData.append('fileComponentName', fileComponentName);
     formData.append('file', simpleFile);
+    if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
     try {
       const res = await fetch('/api/route-simple', {
         method: 'POST',
@@ -79,7 +82,7 @@ const fileForm = new FormData();
 fileForm.append('file', file);
 const uploadRes = await fetch('${fileUploadEndpoint}', {
   method: 'POST',
-  body: fileForm
+  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}
 });
 const uploadData = await uploadRes.json();
 const uploadedPath = uploadData.path;
@@ -94,7 +97,7 @@ const payload = {
 };
 const runRes = await fetch('${langflowRunEndpoint}', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
   body: JSON.stringify(payload)
 });
 const runData = await runRes.json();
@@ -154,6 +157,23 @@ console.log(runData);
             }
           }}
         />
+        <label htmlFor="langflowApiKey" className="font-semibold text-[#b3cfff]">Langflow API Key (optional)</label>
+        <input
+          id="langflowApiKey"
+          name="langflowApiKey"
+          type={showApiKey ? "text" : "password"}
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
+          placeholder="Paste your Langflow API Key (optional)"
+          value={langflowApiKey}
+          onChange={(e) => setLangflowApiKey(e.target.value)}
+        />
+        <button
+          type="button"
+          className="text-xs text-blue-300 hover:text-blue-400 mt-1 self-end"
+          onClick={() => setShowApiKey(v => !v)}
+        >
+          {showApiKey ? "Hide" : "Show"} API Key
+        </button>
         {simpleFileError && <p className="text-yellow-400 text-sm mt-1">{simpleFileError}</p>}
         <button
           type="submit"

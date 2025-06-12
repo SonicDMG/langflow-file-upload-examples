@@ -35,6 +35,8 @@ export async function POST(request) {
   const flowId = Array.isArray(flowIdRaw) ? flowIdRaw[0] : flowIdRaw;
   const fileComponentNameRaw = formData.fields?.fileComponentName;
   const fileComponentName = Array.isArray(fileComponentNameRaw) ? fileComponentNameRaw[0] : fileComponentNameRaw;
+  const langflowApiKeyRaw = formData.fields?.langflowApiKey;
+  const langflowApiKey = Array.isArray(langflowApiKeyRaw) ? langflowApiKeyRaw[0] : langflowApiKeyRaw;
 
   if (!host || !flowId || !fileComponentName) {
     return new Response(JSON.stringify({ error: 'Missing host, flowId, or fileComponentName' }), { status: 400 });
@@ -71,9 +73,10 @@ export async function POST(request) {
         maxBodyLength: Infinity,
         url: FILE_UPLOAD_URL, // example:'https://docs.langflow.org/api/v1/files/upload/:flow_id'
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           'Accept': 'application/json',
-          ...data.getHeaders()
+          ...data.getHeaders(),
+          ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
         },
         data: data
       };
@@ -112,6 +115,7 @@ export async function POST(request) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
     },
     body: JSON.stringify(langflowPayload)
   };

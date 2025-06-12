@@ -22,6 +22,8 @@ export default function ChatImageCard() {
   const [imageResponse, setImageResponse] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
   const imageFileInputRef = useRef();
+  const [langflowApiKey, setLangflowApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleImageSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +44,7 @@ export default function ChatImageCard() {
     formData.append('fileComponentName', fileComponentName);
     formData.append('textInput', imageTextInput);
     formData.append('file', imageFile);
+    if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
     try {
       const res = await fetch('/api/chat-and-image', {
         method: 'POST',
@@ -74,6 +77,37 @@ export default function ChatImageCard() {
     },
     textInput: imageTextInput || '<text>'
   }, null, 2);
+
+  const codeSnippet = `// 1. Upload the image to Langflow
+const file = /* your File object */;
+const fileForm = new FormData();
+fileForm.append('file', file);
+const uploadRes = await fetch('${fileUploadEndpoint}', {
+  method: 'POST',
+  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}
+});
+const uploadData = await uploadRes.json();
+const uploadedPath = uploadData.file_path || uploadData.path;
+
+// 2. Call the Langflow run endpoint
+const payload = {
+  tweaks: {
+    '${fileComponentName || 'File-Component-Name'}': {
+      files: uploadedPath,
+      input_value: imageTextInput
+    }
+  },
+  output_type: 'chat',
+  input_type: 'chat'
+};
+const runRes = await fetch('${langflowRunEndpoint}', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
+  body: JSON.stringify(payload)
+});
+const runData = await runRes.json();
+console.log(runData);
+`;
 
   return (
     <div className="bg-[#19213a] rounded-xl shadow-lg p-8 border border-[#2a3b6e]">
@@ -137,6 +171,23 @@ export default function ChatImageCard() {
             }
           }}
         />
+        <label htmlFor="langflowApiKey" className="font-semibold text-[#b3cfff]">Langflow API Key (optional)</label>
+        <input
+          id="langflowApiKey"
+          name="langflowApiKey"
+          type={showApiKey ? "text" : "password"}
+          className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
+          placeholder="Paste your Langflow API Key (optional)"
+          value={langflowApiKey}
+          onChange={(e) => setLangflowApiKey(e.target.value)}
+        />
+        <button
+          type="button"
+          className="text-xs text-blue-300 hover:text-blue-400 mt-1 self-end"
+          onClick={() => setShowApiKey(v => !v)}
+        >
+          {showApiKey ? "Hide" : "Show"} API Key
+        </button>
         {imageError && <p className="text-red-400 text-sm mt-1">{imageError}</p>}
         <button
           type="submit"
