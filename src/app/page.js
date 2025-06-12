@@ -17,7 +17,7 @@ const TAB_INFO = [
   },
   {
     key: "chatUpload",
-    label: "Chat Upload",
+    label: "Chat + File",
     card: <ChatFileCard />,
     explanation: {
       heading: "Chat + File Upload",
@@ -26,7 +26,7 @@ const TAB_INFO = [
   },
   {
     key: "imageUpload",
-    label: "Image Upload",
+    label: "Chat + Image",
     card: <ChatImageCard />,
     explanation: {
       heading: "Image + Text Upload",
@@ -67,14 +67,14 @@ export default function Home() {
           </button>
         ))}
       </div>
+      {/* Explanation Card */}
+      <div className="w-full max-w-4xl mx-auto bg-[#1a223a] border border-[#2a3b6e] rounded-xl p-6 mb-8">
+        <h3 className="text-xl font-bold text-[#4ea1f7] mb-2">{currentTab.explanation.heading}</h3>
+        <p className="text-blue-100 text-base">{currentTab.explanation.text}</p>
+      </div>
       {/* Upload Card */}
       <div className="flex flex-col gap-12 w-full">
         <div className="w-full max-w-4xl mx-auto">{currentTab.card}</div>
-        {/* Explanation Card */}
-        <div className="w-full max-w-4xl mx-auto bg-[#1a223a] border border-[#2a3b6e] rounded-xl p-6 mt-2">
-          <h3 className="text-xl font-bold text-[#4ea1f7] mb-2">{currentTab.explanation.heading}</h3>
-          <p className="text-blue-100 text-base">{currentTab.explanation.text}</p>
-        </div>
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ export default function ChatImageCard() {
   const fileUploadEndpoint = flowId ? `${safeHost.replace(/\/$/, "")}/api/v1/files/upload/${flowId}` : `${safeHost.replace(/\/$/, "")}/api/v1/files/upload/<flowId>`;
   const langflowRunEndpoint = flowId ? `${safeHost.replace(/\/$/, "")}/api/v1/run/${flowId}` : `${safeHost.replace(/\/$/, "")}/api/v1/run/<flowId>`;
   // Use actual uploaded file path if available, otherwise placeholder
-  const uploadedFilePath = imageResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/image";
+  const uploadedFilePath = imageResponse?.file_path || imageResponse?.langflowFileUploadResponse?.file_path || imageResponse?.path || imageResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/image";
 
   const payloadPreview = JSON.stringify({
     tweaks: {
