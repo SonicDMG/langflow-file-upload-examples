@@ -114,48 +114,42 @@ const runData = await runRes.json();
 console.log(runData);
 `;
 
-  const nodeCode = `// Node.js example using axios, form-data, and fs
-// 1. Import required modules
-const axios = require('axios');
-const FormData = require('form-data');
-const fs = require('fs');
+  const nodeCode = `// Node.js 18+ example using global fetch, FormData, and Blob
+import fs from 'fs/promises';
 
-// 2. Prepare the form data with the image to upload
+// 1. Prepare the form data with the image to upload
+const fileBuffer = await fs.readFile('${fileName}');
 const data = new FormData();
-data.append('file', fs.createReadStream('${fileName}'));
+data.append('file', new Blob([fileBuffer]), '${fileName}');
+${langflowApiKey ? `data.append('langflowApiKey', '${langflowApiKey}');` : ''}
 
-// 3. Upload the image to Langflow
-axios.post('${fileUploadEndpoint}', data, {
-  headers: {
-    ...data.getHeaders(),${langflowApiKey ? "\n    'x-api-key': '" + langflowApiKey + "'," : ""}
-  }
-})
-.then(res => {
-  // 4. Get the uploaded file path from the response
-  const uploadedPath = res.data.file_path;
-  // 5. Call the Langflow run endpoint with the uploaded file path
-  return axios.post('${langflowRunEndpoint}', {
-    input_value: "${imageTextInput || 'What is in this image?'}",
-    output_type: "chat",
-    input_type: "chat",
-    tweaks: {
-      '${fileComponentName || 'File-Component-Name'}': {
-        files: [uploadedPath]
-      }
-    }
-  }, {
-    headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} }
-  });
-})
-.then(res => {
-  // 6. Output only the message
-  const langflowData = res.data;
-  console.log(langflowData.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text);
-})
-.catch(err => {
-  // 7. Handle errors
-  console.error(err);
+// 2. Upload the image to Langflow
+const uploadRes = await fetch('${fileUploadEndpoint}', {
+  method: 'POST',
+  body: data
 });
+const uploadData = await uploadRes.json();
+const uploadedPath = uploadData.file_path;
+
+// 3. Call the Langflow run endpoint with the uploaded file path
+const payload = {
+  input_value: "${imageTextInput || 'What is in this image?'}",
+  output_type: "chat",
+  input_type: "chat",
+  tweaks: {
+    '${fileComponentName || 'File-Component-Name'}': {
+      files: [uploadedPath]
+    }
+  }
+};
+const runRes = await fetch('${langflowRunEndpoint}', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
+  body: JSON.stringify(payload)
+});
+const langflowData = await runRes.json();
+// Output only the message
+console.log(langflowData.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text);
 `;
 
   const pythonCode = `# Python example using requests

@@ -4,15 +4,13 @@
 //const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/c60360c2-70a0-4c8d-8dd1-5900979263c6`;
 //const FILE_COMPONENT_NAME = 'File-P6xlj';
 
-import axios from 'axios';
-import FormData from 'form-data';
 import { 
   parseMultipartForm, 
   getUploadedFile, 
-  createFileReadStream, 
   sendLangflowApiResponse, 
   ALLOWED_MIME_TYPES 
 } from '../utils';
+import fs from 'fs/promises';
 
 // Disable Next.js's default body parser so we can handle multipart/form-data 
 // (file uploads) with a custom parser.
@@ -58,23 +56,28 @@ export async function POST(request) {
   if (tempPath) {
     try {
       const data = new FormData();
-      const { stream, options } = createFileReadStream(tempPath, fileName);
-      data.append('file', stream, options);
-      const config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: FILE_UPLOAD_URL,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-          ...data.getHeaders(),
-          ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
-        },
-        data: data
-      };
-      const uploadResponse = await axios.request(config);
-      fileUploadResponse = uploadResponse.data;
-      uploadedFilePath = uploadResponse.data?.path || uploadResponse.data?.file_path || uploadResponse.data?.id;
+      const fileBuffer = await fs.readFile(tempPath);
+      data.append('file', new Blob([fileBuffer]), fileName);
+      // Helper to ensure we always append a string, not an array
+      const getField = (val) => Array.isArray(val) ? val[0] : val;
+      data.append('flowId', getField(flowId));
+      data.append('fileComponentName', getField(fileComponentName));
+      data.append('host', host);
+      if (langflowApiKey) {
+        data.append('langflowApiKey', getField(langflowApiKey));
+      }
+      // Use fetch for file upload (headers auto-set by FormData)
+      const uploadRes = await fetch(FILE_UPLOAD_URL, {
+        method: 'POST',
+        body: data
+      });
+      if (!uploadRes.ok) {
+        const errData = await uploadRes.json().catch(() => ({}));
+        throw new Error(errData.error || 'File upload failed');
+      }
+      const uploadResponse = await uploadRes.json();
+      fileUploadResponse = uploadResponse;
+      uploadedFilePath = uploadResponse?.path || uploadResponse?.file_path || uploadResponse?.id;
     } catch (err) {
       return new Response(JSON.stringify(
         { error: 'Failed to upload file to Langflow', details: err.message, langflowFileUploadResponse: err.response?.data }

@@ -4,15 +4,13 @@
 //const LANGFLOW_FLOW_RUN_URL = `${LANGFLOW_URL}/api/v1/run/28eaf8b0-822a-4855-addd-f6dc73d051ba`;
 //const FILE_COMPONENT_NAME = 'File-VMznN';
 
-import axios from 'axios';
-import FormData from 'form-data';
 import { 
   parseMultipartForm, 
   getUploadedFile, 
-  createFileReadStream, 
   sendLangflowApiResponse, 
   ALLOWED_MIME_TYPES 
 } from '../utils';
+import fs from 'fs/promises';
 
 // Disable Next.js's default body parser so we can handle multipart/form-data 
 // (file uploads) with a custom parser.
@@ -54,39 +52,29 @@ export async function POST(request) {
     try {
       // Create a FormData object to send the file to the Langflow file API
       const data = new FormData();
-      // Create a read stream from the file and preserve the original filename
-      const { stream, options } = createFileReadStream(tempPath, fileName);
-
+      // Read file as Buffer and append as Blob/Buffer
+      const fileBuffer = await fs.readFile(tempPath);
       // Helper to ensure we always append a string, not an array
       const getField = (val) => Array.isArray(val) ? val[0] : val;
-
-      data.append('file', stream, options);
+      data.append('file', new Blob([fileBuffer]), fileName);
       data.append('flowId', getField(flowId));
       data.append('fileComponentName', getField(fileComponentName));
       data.append('host', host);
       if (langflowApiKey) {
         data.append('langflowApiKey', getField(langflowApiKey));
       }
-
-      // Prepare headers
-      const headers = {
-        ...data.getHeaders(),
-        ...(langflowApiKey ? { 'x-api-key': langflowApiKey } : {})
-      };
-
-      // Send the file to the Langflow V2 file API
-      const config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: `${host.replace(/\/$/, '')}/api/v2/files/`,
-        headers,
-        data: data
-      };
-
-      // Send the file to the Langflow V2 file API using axios
-      const uploadResponse = await axios.request(config);
-      fileUploadResponse = uploadResponse.data;
-      uploadedFilePath = uploadResponse.data?.path;
+      // Use fetch for file upload (headers auto-set by FormData)
+      const uploadRes = await fetch(`${host.replace(/\/$/, '')}/api/v2/files/`, {
+        method: 'POST',
+        body: data
+      });
+      if (!uploadRes.ok) {
+        const errData = await uploadRes.json().catch(() => ({}));
+        throw new Error(errData.error || 'File upload failed');
+      }
+      const uploadResponse = await uploadRes.json();
+      fileUploadResponse = uploadResponse;
+      uploadedFilePath = uploadResponse?.path;
     } catch (err) {
       return new Response(JSON.stringify(
         { 
