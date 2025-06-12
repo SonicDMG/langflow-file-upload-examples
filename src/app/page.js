@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import FileUploadCard from "./components/FileUploadCard";
 import ChatFileCard from "./components/ChatFileCard";
 import ChatImageCard from "./components/ChatImageCard";
-import RouteSimpleCard from "./components/RouteSimpleCard";
 
 const TAB_INFO = [
   {
@@ -31,15 +30,6 @@ const TAB_INFO = [
     explanation: {
       heading: "Image + Text Upload",
       text: "Upload an image file along with a text prompt. Useful for flows that process both image and text data together."
-    }
-  },
-  {
-    key: "simpleUpload",
-    label: "Simple Upload",
-    card: <RouteSimpleCard />,
-    explanation: {
-      heading: "Simple File Upload",
-      text: "A minimal file upload example for basic flows or testing."
     }
   }
 ];
