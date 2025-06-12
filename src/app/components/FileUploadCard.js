@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
 import FileUploadFormSection from "./FileUploadFormSection";
-import FileUploadEndpointSection from "./FileUploadEndpointSection";
-import FileUploadResponseSection from "./FileUploadResponseSection";
+import EndpointSection from "./EndpointSection";
+import ResponseSection from "./ResponseSection";
+import CodeSection from "./CodeSection";
 
 const TEXT_ACCEPTED_FILE_TYPES = ".txt,.pdf,.doc,.docx,.rtf,.csv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/rtf,text/plain,text/csv";
 const TEXT_ALLOWED_TYPES = [
@@ -76,6 +77,8 @@ export default function FileUploadCard() {
     }
   }, null, 2);
 
+  const codeSnippet = `// 1. Upload the file to Langflow\nconst file = /* your File object */;\nconst fileForm = new FormData();\nfileForm.append('file', file);\nconst uploadRes = await fetch('${fileUploadEndpoint}', {\n  method: 'POST',\n  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}\n});\nconst uploadData = await uploadRes.json();\nconst uploadedPath = uploadData.path;\n\n// 2. Call the Langflow run endpoint\nconst payload = {\n  tweaks: {\n    '${fileComponentName || 'File-Component-Name'}': {\n      path: uploadedPath\n    }\n  }\n};\nconst runRes = await fetch('${langflowRunEndpoint}', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },\n  body: JSON.stringify(payload)\n});\nconst runData = await runRes.json();\nconsole.log(runData);\n`;
+
   return (
     <div className="bg-[#19213a] rounded-xl shadow-lg p-4 md:p-8 border border-[#2a3b6e] max-w-[1200px] mx-auto">
       <div className="flex flex-col md:flex-row gap-8">
@@ -97,12 +100,16 @@ export default function FileUploadCard() {
           />
         </div>
         <div className="w-full md:w-2/3 flex flex-col gap-6">
-          <FileUploadEndpointSection
-            fileUploadEndpoint={fileUploadEndpoint}
-            langflowRunEndpoint={langflowRunEndpoint}
-            payloadPreview={payloadPreview}
+          <EndpointSection
+            endpoints={[
+              { label: "File Upload API Endpoint:", value: fileUploadEndpoint },
+              { label: "Langflow Run API Endpoint:", value: langflowRunEndpoint }
+            ]}
+            payload={payloadPreview}
+            title={null}
           />
-          <FileUploadResponseSection fileOnlyResponse={fileOnlyResponse} />
+          <CodeSection code={codeSnippet} language="javascript" title="Example Code" colorClass="text-[#7ea2e3]" />
+          <ResponseSection response={fileOnlyResponse} title="Upload Response" colorClass="text-[#b3cfff]" />
         </div>
       </div>
     </div>

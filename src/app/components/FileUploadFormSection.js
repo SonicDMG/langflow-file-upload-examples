@@ -12,7 +12,8 @@ export default function FileUploadFormSection({
   fileOnlyLoading,
   handleFileOnlySubmit,
   TEXT_ACCEPTED_FILE_TYPES,
-  TEXT_ALLOWED_TYPES
+  TEXT_ALLOWED_TYPES,
+  setFileOnlyError
 }) {
   return (
     <form className="flex flex-col gap-4" onSubmit={handleFileOnlySubmit}>
