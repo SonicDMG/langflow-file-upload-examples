@@ -15,7 +15,7 @@ export default function EndpointSection({ endpoints = [], payload, title = "API 
       {payload && (
         <div>
           <span className="font-semibold text-[#7ea2e3]">Payload:</span>
-          <SyntaxHighlighter language="json" style={atomDark} customStyle={{ borderRadius: '0.5rem', background: '#19213a', fontSize: '0.95em', padding: '1em', marginTop: '0.5em' }}>
+          <SyntaxHighlighter language="json" style={atomDark} customStyle={{ borderRadius: '0.5rem', background: '#19213a', fontSize: '0.95em', padding: '1em', marginTop: '0.5em', width: '100%' }}>
             {payload}
           </SyntaxHighlighter>
         </div>

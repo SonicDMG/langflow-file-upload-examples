@@ -49,7 +49,7 @@ export default function Home() {
         <span className="text-blue-300 text-sm">Version: <a href="https://docs.langflow.org/api/upload-user-file" className="underline hover:text-blue-400" target="_blank" rel="noopener noreferrer">Langflow File API v2</a> | <a href="https://docs.langflow.org/api/upload-file-1" className="underline hover:text-blue-400" target="_blank" rel="noopener noreferrer">File API v1</a></span>
       </div>
       {/* Tab Bar */}
-      <div className="flex w-full max-w-4xl mb-8 rounded-lg overflow-hidden bg-[#1a223a] border border-[#2a3b6e]">
+      <div className="flex w-full max-w-6xl mb-8 rounded-lg overflow-hidden bg-[#1a223a] border border-[#2a3b6e]">
         {TAB_INFO.map(tab => (
           <button
             key={tab.key}
@@ -61,14 +61,14 @@ export default function Home() {
         ))}
       </div>
       {/* Explanation Card */}
-      <div className="w-full max-w-4xl mx-auto bg-[#1a223a] border border-[#2a3b6e] rounded-xl p-6 mb-8">
+      <div className="w-full max-w-6xl mx-auto bg-[#1a223a] border border-[#2a3b6e] rounded-xl p-6 mb-8">
         <h3 className="text-xl font-bold text-[#4ea1f7] mb-2">{currentTab.explanation.heading}</h3>
         <span className="text-xs text-blue-400 font-semibold block mb-2">{currentTab.explanation.apiVersion}</span>
         <p className="text-blue-100 text-base">{currentTab.explanation.text}</p>
       </div>
       {/* Upload Card */}
       <div className="flex flex-col gap-12 w-full">
-        <div className="w-full max-w-[1200px] mx-auto">{currentTab.card}</div>
+        <div className="w-full max-w-[1600px] mx-auto">{currentTab.card}</div>
       </div>
     </div>
   );

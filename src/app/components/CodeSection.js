@@ -57,7 +57,7 @@ export default function CodeSection({ code, language = "javascript", title = "Ex
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" strokeWidth="2"/><rect x="3" y="3" width="13" height="13" rx="2" strokeWidth="2"/></svg>
         )}
       </button>
-      <SyntaxHighlighter language={displayLanguage} style={atomDark} customStyle={{ borderRadius: '0.5rem', background: '#19213a', fontSize: '0.95em', padding: '1em', marginTop: '0.5em' }}>
+      <SyntaxHighlighter language={displayLanguage} style={atomDark} customStyle={{ borderRadius: '0.5rem', background: '#19213a', fontSize: '0.95em', padding: '1em', marginTop: '0.5em', width: '100%' }}>
         {displayCode}
       </SyntaxHighlighter>
     </div>

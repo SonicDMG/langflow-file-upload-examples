@@ -250,7 +250,7 @@ curl -s --request POST \\
 `;
 
   return (
-    <div className="bg-[#19213a] rounded-xl shadow-lg p-4 md:p-8 border border-[#2a3b6e] max-w-[1200px] mx-auto">
+    <div className="bg-[#19213a] rounded-xl shadow-lg p-4 md:p-8 border border-[#2a3b6e] w-full mx-auto">
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-1/3">
           <form className="flex flex-col gap-4" onSubmit={handleImageSubmit}>
