@@ -79,16 +79,19 @@ export default function ChatFileCard() {
     textInput: textInput || '<text>'
   }, null, 2);
 
-  const codeSnippet = `// 1. Get the file from the file picker
+  const fileName = file ? file.name : 'yourfile.txt';
+
+  const browserCode = `// 1. Get the file from the file picker
 const fileInput = document.getElementById("file");
 const file = fileInput.files[0];
+// User selected: ${fileName}
 
 // 2. Upload the file to Langflow
 const fileForm = new FormData();
 fileForm.append('file', file);
 const uploadRes = await fetch('${fileUploadEndpoint}', {
   method: 'POST',
-  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}
+  body: fileForm,${langflowApiKey ? "\n  headers: { 'x-api-key': '" + langflowApiKey + "' }," : ""}
 });
 const uploadData = await uploadRes.json();
 const uploadedPath = uploadData.file_path || uploadData.path;
@@ -109,6 +112,78 @@ const runRes = await fetch('${langflowRunEndpoint}', {
 });
 const runData = await runRes.json();
 console.log(runData);
+`;
+
+  const nodeCode = `// Node.js example using axios, form-data, and fs
+// 1. Import required modules
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+
+// 2. Prepare the form data with the file to upload
+const data = new FormData();
+data.append('file', fs.createReadStream('${fileName}'));
+
+// 3. Upload the file to Langflow
+axios.post('${fileUploadEndpoint}', data, {
+  headers: {
+    ...data.getHeaders(),${langflowApiKey ? "\n    'x-api-key': '" + langflowApiKey + "'," : ""}
+  }
+})
+.then(res => {
+  // 4. Get the uploaded file path from the response
+  const uploadedPath = res.data.file_path || res.data.path;
+  // 5. Call the Langflow run endpoint with the uploaded file path
+  return axios.post('${langflowRunEndpoint}', {
+    tweaks: {
+      '${fileComponentName || 'File-Component-Name'}': {
+        path: uploadedPath
+      }
+    },
+    textInput: "${textInput || '<text>'}"
+  }, {
+    headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} }
+  });
+})
+.then(res => {
+  // 6. Print the final response
+  console.log(res.data);
+})
+.catch(err => {
+  // 7. Handle errors
+  console.error(err);
+});
+`;
+
+  const pythonCode = `# Python example using requests
+import requests
+
+# 1. Set the upload URL
+url = "${fileUploadEndpoint}"
+
+# 2. Prepare the file and payload
+payload = {}
+files = [
+  ('file', ('${fileName}', open('${fileName}', 'rb'), 'application/octet-stream'))
+]
+headers = {
+  'Accept': 'application/json'${langflowApiKey ? ",\n  'x-api-key': '" + langflowApiKey + "'" : ""}
+}
+
+# 3. Upload the file to Langflow
+response = requests.request("POST", url, headers=headers, data=payload, files=files)
+
+# 4. Print the response
+print(response.text)
+`;
+
+  const curlCode = `# cURL example for uploading a file to Langflow
+# 1. Upload the file
+curl -X POST \
+  "${fileUploadEndpoint}" \
+  -H "Accept: application/json" \
+  -F "file=@${fileName}"${langflowApiKey ? ` \
+  -H "x-api-key: ${langflowApiKey}"` : ''}
 `;
 
   return (
@@ -211,7 +286,16 @@ console.log(runData);
             payload={payloadPreview}
             title={null}
           />
-          <CodeSection code={codeSnippet} language="javascript" title="Example Code" colorClass="text-[#7ea2e3]" />
+          <CodeSection
+            codeExamples={[
+              { label: 'Browser', code: browserCode, language: 'javascript' },
+              { label: 'Node.js', code: nodeCode, language: 'javascript' },
+              { label: 'Python', code: pythonCode, language: 'python' },
+              { label: 'cURL', code: curlCode, language: 'bash' }
+            ]}
+            title="Example Code"
+            colorClass="text-[#7ea2e3]"
+          />
           <ResponseSection response={uploadResponse} title="Upload Response" colorClass="text-[#b3cfff]" />
         </div>
       </div>
