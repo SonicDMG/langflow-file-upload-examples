@@ -121,11 +121,12 @@ import fs from 'fs/promises';
 const fileBuffer = await fs.readFile('${fileName}');
 const data = new FormData();
 data.append('file', new Blob([fileBuffer]), '${fileName}');
-${langflowApiKey ? `data.append('langflowApiKey', '${langflowApiKey}');` : ''}
+const headers = ${langflowApiKey ? `{ 'x-api-key': '${langflowApiKey}' }` : 'undefined'};
 
 // 2. Upload the file to Langflow
 const uploadRes = await fetch('${fileUploadEndpoint}', {
   method: 'POST',
+  headers,
   body: data
 });
 const uploadData = await uploadRes.json();

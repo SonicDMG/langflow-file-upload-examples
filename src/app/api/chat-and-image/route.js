@@ -66,12 +66,11 @@ export async function POST(request) {
       data.append('flowId', getField(flowId));
       data.append('fileComponentName', getField(fileComponentName));
       data.append('host', host);
-      if (langflowApiKey) {
-        data.append('langflowApiKey', getField(langflowApiKey));
-      }
       // Use fetch for file upload (headers auto-set by FormData)
+      const headers = langflowApiKey ? { 'x-api-key': langflowApiKey } : undefined;
       const uploadRes = await fetch(FILE_UPLOAD_URL, {
         method: 'POST',
+        headers,
         body: data
       });
       if (!uploadRes.ok) {
