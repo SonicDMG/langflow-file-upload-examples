@@ -1,0 +1,45 @@
+
+Johnathan M. Doe
+1234 Elm Street
+Springfield, IL 62704
+Phone: (555) 123-4567
+Email: john.doe@email.com
+LinkedIn: linkedin.com/in/johndoe
+
+Objective:
+Motivated and detail-oriented professional with over 5 years of experience in project management, data analysis, and team leadership. Seeking to leverage proven skills in a challenging new role.
+
+Professional Experience:
+
+Project Manager
+TechNova Solutions – Chicago, IL
+Jan 2021 – Present
+- Led cross-functional teams of up to 15 members to deliver software products on time and within budget.
+- Implemented Agile methodologies resulting in a 30% increase in team productivity.
+- Managed project budgets exceeding $2M and maintained client satisfaction rate of 95%.
+
+Business Analyst
+BrightPath Analytics – St. Louis, MO
+Jun 2017 – Dec 2020
+- Conducted data analysis using SQL and Python to support business decisions.
+- Developed KPI dashboards that improved reporting efficiency by 40%.
+- Collaborated with stakeholders to gather requirements and translate them into functional specifications.
+
+Education:
+
+Bachelor of Science in Business Administration
+University of Illinois – Urbana-Champaign
+Graduated: May 2017
+
+Skills:
+- Project Management (Agile, Scrum)
+- Data Analysis (SQL, Excel, Python)
+- Communication & Leadership
+- Budgeting and Forecasting
+- JIRA, Asana, Trello
+
+Certifications:
+- Certified ScrumMaster (CSM)
+- PMP – Project Management Professional
+
+References available upon request.

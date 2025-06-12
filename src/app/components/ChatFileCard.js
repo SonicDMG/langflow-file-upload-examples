@@ -79,7 +79,37 @@ export default function ChatFileCard() {
     textInput: textInput || '<text>'
   }, null, 2);
 
-  const codeSnippet = `// 1. Upload the file to Langflow\nconst file = /* your File object */;\nconst fileForm = new FormData();\nfileForm.append('file', file);\nconst uploadRes = await fetch('${fileUploadEndpoint}', {\n  method: 'POST',\n  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}\n});\nconst uploadData = await uploadRes.json();\nconst uploadedPath = uploadData.path;\n\n// 2. Call the Langflow run endpoint\nconst payload = {\n  tweaks: {\n    '${fileComponentName || 'File-Component-Name'}': {\n      path: uploadedPath\n    }\n  },\n  input_value: textInput\n};\nconst runRes = await fetch('${langflowRunEndpoint}', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },\n  body: JSON.stringify(payload)\n});\nconst runData = await runRes.json();\nconsole.log(runData);\n`;
+  const codeSnippet = `// 1. Get the file from the file picker
+const fileInput = document.getElementById("file");
+const file = fileInput.files[0];
+
+// 2. Upload the file to Langflow
+const fileForm = new FormData();
+fileForm.append('file', file);
+const uploadRes = await fetch('${fileUploadEndpoint}', {
+  method: 'POST',
+  body: fileForm${langflowApiKey ? ",\n  headers: { 'x-api-key': '" + langflowApiKey + "' }" : ""}
+});
+const uploadData = await uploadRes.json();
+const uploadedPath = uploadData.file_path || uploadData.path;
+
+// 3. Call the Langflow run endpoint
+const payload = {
+  tweaks: {
+    '${fileComponentName || 'File-Component-Name'}': {
+      path: uploadedPath
+    }
+  },
+  textInput: "${textInput || '<text>'}"
+};
+const runRes = await fetch('${langflowRunEndpoint}', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
+  body: JSON.stringify(payload)
+});
+const runData = await runRes.json();
+console.log(runData);
+`;
 
   return (
     <div className="bg-[#19213a] rounded-xl shadow-lg p-4 md:p-8 border border-[#2a3b6e] max-w-[1200px] mx-auto">
