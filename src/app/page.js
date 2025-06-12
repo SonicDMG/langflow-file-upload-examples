@@ -74,7 +74,7 @@ export default function Home() {
       </div>
       {/* Upload Card */}
       <div className="flex flex-col gap-12 w-full">
-        <div className="w-full max-w-4xl mx-auto">{currentTab.card}</div>
+        <div className="w-full max-w-[1200px] mx-auto">{currentTab.card}</div>
       </div>
     </div>
   );
