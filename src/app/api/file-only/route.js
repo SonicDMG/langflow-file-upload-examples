@@ -28,6 +28,8 @@ export async function POST(request) {
   const fileComponentName = formData.fields?.fileComponentName;
   const langflowApiKeyRaw = formData.fields?.langflowApiKey;
   const langflowApiKey = Array.isArray(langflowApiKeyRaw) ? langflowApiKeyRaw[0] : langflowApiKeyRaw;
+  const sessionIdRaw = formData.fields?.sessionId;
+  const sessionId = Array.isArray(sessionIdRaw) ? sessionIdRaw[0] : sessionIdRaw;
   const hostRaw = formData.fields?.host;
   const host = Array.isArray(hostRaw) ? hostRaw[0] : hostRaw;
 
@@ -87,6 +89,7 @@ export async function POST(request) {
 
   // Construct the payload for Langflow (no text input)
   const langflowPayload = {
+    ...(sessionId ? { session_id: sessionId } : {}),
     tweaks: {
       [fileComponentName]: { path: uploadedFilePath }
     }

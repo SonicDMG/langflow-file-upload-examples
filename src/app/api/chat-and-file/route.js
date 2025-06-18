@@ -34,6 +34,8 @@ export async function POST(request) {
   const fileComponentName = Array.isArray(fileComponentNameRaw) ? fileComponentNameRaw[0] : fileComponentNameRaw;
   const langflowApiKeyRaw = formData.fields?.langflowApiKey;
   const langflowApiKey = Array.isArray(langflowApiKeyRaw) ? langflowApiKeyRaw[0] : langflowApiKeyRaw;
+  const sessionIdRaw = formData.fields?.sessionId;
+  const sessionId = Array.isArray(sessionIdRaw) ? sessionIdRaw[0] : sessionIdRaw;
 
   if (!host || !flowId || !fileComponentName) {
     return new Response(JSON.stringify({ error: 'Missing host, flowId, or fileComponentName' }), { status: 400 });
@@ -87,6 +89,7 @@ export async function POST(request) {
   // Construct the payload for the Langflow agentic AI workflow
   const langflowPayload = {
     input_value: input_value,
+    ...(sessionId ? { session_id: sessionId } : {}),
     tweaks: {
       [fileComponentName]: { path: uploadedFilePath }
     }

@@ -13,7 +13,8 @@ export default function FileUploadFormSection({
   handleFileOnlySubmit,
   TEXT_ACCEPTED_FILE_TYPES,
   TEXT_ALLOWED_TYPES,
-  setFileOnlyError
+  setFileOnlyError,
+  sessionId, setSessionId
 }) {
   return (
     <form className="flex flex-col gap-4" onSubmit={handleFileOnlySubmit}>
@@ -66,6 +67,16 @@ export default function FileUploadFormSection({
             setFileOnlyError("");
           }
         }}
+      />
+      <label htmlFor="sessionId" className="font-semibold text-[#b3cfff]">Session ID (optional)</label>
+      <input
+        id="sessionId"
+        name="sessionId"
+        type="text"
+        className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
+        placeholder="Enter a session ID for tracking (optional)"
+        value={sessionId}
+        onChange={(e) => setSessionId(e.target.value)}
       />
       <label htmlFor="langflowApiKey" className="font-semibold text-[#b3cfff]">Langflow API Key (optional)</label>
       <input

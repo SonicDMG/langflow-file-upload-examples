@@ -25,6 +25,7 @@ export default function FileUploadCard() {
   const fileOnlyInputRef = useRef();
   const [langflowApiKey, setLangflowApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [sessionId, setSessionId] = useState("");
 
   const handleFileOnlySubmit = async (e) => {
     e.preventDefault();
@@ -45,6 +46,7 @@ export default function FileUploadCard() {
     formData.append('fileComponentName', fileComponentName);
     formData.append('host', host);
     if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
+    if (sessionId) formData.append('sessionId', sessionId);
     try {
       const res = await fetch('/api/file-only', {
         method: 'POST',
@@ -73,6 +75,7 @@ export default function FileUploadCard() {
     input_value: 'Analyze this file',
     output_type: 'chat',
     input_type: 'text',
+    ...(sessionId ? { session_id: sessionId } : {}),
     tweaks: fileComponentName ? {
       [fileComponentName]: {
         path: uploadedFilePath
@@ -137,7 +140,7 @@ const uploadedPath = uploadData.path;
 const payload = {
   input_value: "Analyze this file",
   output_type: "chat",
-  input_type: "text",
+  input_type: "text"${sessionId ? `,\n  // Optional: Use session tracking if needed\n  session_id: "${sessionId}"` : ''},
   tweaks: {
     '${fileComponentName || 'File-Component-Name'}': {
       path: uploadedPath
@@ -183,7 +186,7 @@ run_url = "${langflowRunEndpoint}"
 run_payload = {
     "input_value": "Analyze this file",
     "output_type": "chat",
-    "input_type": "text",
+    "input_type": "text"${sessionId ? `,\n    # Optional: Use session tracking if needed\n    "session_id": "${sessionId}"` : ''},
     "tweaks": {
         "${fileComponentName || 'File-Component-Name'}": {
             "path": uploaded_path
@@ -235,7 +238,7 @@ curl -s --request POST \\
   -d '{
     "input_value": "Analyze this file",
     "output_type": "chat",
-    "input_type": "text",
+    "input_type": "text"${sessionId ? `,\n  "session_id": "${sessionId}"` : ''},
     "tweaks": {
       "${fileComponentName || 'File-Component-Name'}": {
         "path": "'"$uploaded_path"'"
@@ -263,6 +266,7 @@ curl -s --request POST \\
             TEXT_ACCEPTED_FILE_TYPES={TEXT_ACCEPTED_FILE_TYPES}
             TEXT_ALLOWED_TYPES={TEXT_ALLOWED_TYPES}
             setFileOnlyError={setFileOnlyError}
+            sessionId={sessionId} setSessionId={setSessionId}
           />
         </div>
         <div className="w-full md:w-2/3 flex flex-col gap-6">

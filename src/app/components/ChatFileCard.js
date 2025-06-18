@@ -24,6 +24,7 @@ export default function ChatFileCard() {
   const [chatFileLoading, setChatFileLoading] = useState(false);
   const [langflowApiKey, setLangflowApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [sessionId, setSessionId] = useState("");
   const fileInputRef = useRef();
 
   const handleSubmit = async (e) => {
@@ -46,6 +47,7 @@ export default function ChatFileCard() {
     formData.append('input_value', input_value);
     formData.append('file', file);
     if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
+    if (sessionId) formData.append('sessionId', sessionId);
     try {
       const res = await fetch('/api/chat-and-file', {
         method: 'POST',
@@ -74,6 +76,7 @@ export default function ChatFileCard() {
     input_value: input_value || '<text>',
     output_type: 'chat',
     input_type: 'chat',
+    ...(sessionId ? { session_id: sessionId } : {}),
     tweaks: fileComponentName ? {
       [fileComponentName]: {
         path: uploadedFilePath
@@ -105,7 +108,7 @@ const uploadedPath = uploadData.path;
 const payload = {
   input_value: "${input_value || 'What is in this file?'}",
   output_type: "chat",
-  input_type: "chat",
+  input_type: "chat"${sessionId ? `,\n  // Optional: Use session tracking if needed\n  session_id: "${sessionId}"` : ''},
   tweaks: {
     '${fileComponentName || 'File-Component-Name'}': {
       path: uploadedPath
@@ -151,7 +154,7 @@ run_url = "${langflowRunEndpoint}"
 run_payload = {
     "input_value": "${input_value || 'What is in this file?'}",
     "output_type": "chat",
-    "input_type": "chat",
+    "input_type": "chat"${sessionId ? `,\n    # Optional: Use session tracking if needed\n    "session_id": "${sessionId}"` : ''},
     "tweaks": {
         "${fileComponentName || 'File-Component-Name'}": {
             "path": uploaded_path
@@ -203,7 +206,7 @@ curl -s --request POST \\
   -d '{
     "input_value": "${input_value ? input_value.replace(/'/g, "\\'") : 'What is in this file?'}",
     "output_type": "chat",
-    "input_type": "chat",
+    "input_type": "chat"${sessionId ? `,\n  "session_id": "${sessionId}"` : ''},
     "tweaks": {
       "${fileComponentName || 'File-Component-Name'}": {
         "path": "'"$uploaded_path"'"
@@ -276,6 +279,16 @@ curl -s --request POST \\
                   setError("");
                 }
               }}
+            />
+            <label htmlFor="sessionId" className="font-semibold text-[#b3cfff]">Session ID (optional)</label>
+            <input
+              id="sessionId"
+              name="sessionId"
+              type="text"
+              className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
+              placeholder="Enter a session ID for tracking (optional)"
+              value={sessionId}
+              onChange={(e) => setSessionId(e.target.value)}
             />
             <label htmlFor="langflowApiKey" className="font-semibold text-[#b3cfff]">Langflow API Key (optional)</label>
             <input
