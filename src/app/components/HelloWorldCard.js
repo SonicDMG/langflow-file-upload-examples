@@ -6,7 +6,7 @@ import CodeSection from "./CodeSection";
 export default function HelloWorldCard() {
   const [host, setHost] = useState("http://127.0.0.1:7860");
   const [flowId, setFlowId] = useState("");
-  const [textInput, setTextInput] = useState("");
+  const [input_value, setInputValue] = useState("");
   const [langflowApiKey, setLangflowApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [error, setError] = useState("");
@@ -17,7 +17,7 @@ export default function HelloWorldCard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setResponse(null);
-    if (!host || !flowId || !textInput) {
+    if (!host || !flowId || !input_value) {
       setError("Please provide Host, Flow ID, and a message.");
       return;
     }
@@ -26,7 +26,7 @@ export default function HelloWorldCard() {
     const formData = new FormData();
     formData.append('host', host);
     formData.append('flowId', flowId);
-    formData.append('textInput', textInput);
+    formData.append('input_value', input_value);
     if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
     if (sessionId) formData.append('sessionId', sessionId);
     try {
@@ -48,12 +48,12 @@ export default function HelloWorldCard() {
 
   const safeHost = host || "http://127.0.0.1:7860";
   const langflowRunEndpoint = flowId ? `${safeHost.replace(/\/$/, "")}/api/v1/run/${flowId}` : `${safeHost.replace(/\/$/, "")}/api/v1/run/<flowId>`;
-  const payloadPreview = JSON.stringify({ input_value: textInput || '<text>' }, null, 2);
+  const payloadPreview = JSON.stringify({ input_value: input_value || '<text>' }, null, 2);
 
   const sessionIdForExample = sessionId || "user_1";
-  const nodeCode = `// Node 18+ example using global fetch\nconst payload = {\n    input_value: \"${textInput || '<text>'}\",\n    output_type: \"chat\",\n    input_type: \"chat\"${sessionId ? `,\n    // Optional: Use session tracking if needed\n    session_id: \"${sessionId}\"` : ''}\n};\n\nconst options = {\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/json'${langflowApiKey ? ",\n        'x-api-key': '" + langflowApiKey + "'" : ""}\n    },\n    body: JSON.stringify(payload)\n};\n\nfetch('${langflowRunEndpoint}', options)\n    .then(response => response.json())\n    .then(data => {\n        // Print only the message\n        const msg = data?.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text;\n        if (msg) {\n            console.log(msg);\n        } else {\n            console.error('No message found in response:', data);\n        }\n    })\n    .catch(err => console.error(err));\n`;
-  const pythonCode = `# Python example using requests\nimport requests\nimport json\n\nurl = \"${langflowRunEndpoint}\"\npayload = {\n    \"input_value\": \"${textInput || '<text>'}\",\n    \"output_type\": \"chat\",\n    \"input_type\": \"chat\"${sessionId ? `,\n    # Optional: Use session tracking if needed\n    \"session_id\": \"${sessionId}\"` : ''}\n}\nheaders = {\n    'Content-Type': 'application/json'${langflowApiKey ? ",\n    'x-api-key': '" + langflowApiKey + "'" : ""}\n}\nres = requests.post(url, headers=headers, data=json.dumps(payload))\ndata = res.json()\n# Print only the message\ntry:\n    msg = data['outputs'][0]['outputs'][0]['results']['message']['data']['text']\n    print(msg)\nexcept (KeyError, IndexError, TypeError):\n    print('No message found in response:', data)\n`;
-  const curlCode = `curl -s -X POST \\\n  '${langflowRunEndpoint}' \\\n  -H 'Content-Type: application/json'${langflowApiKey ? ` \\\n  -H 'x-api-key: ${langflowApiKey}'` : ''} \\\n  -d '{\n    "input_value": "${textInput || '<text>'}",\n    "output_type": "chat",\n    "input_type": "chat"${sessionId ? `,\n    "session_id": "${sessionId}"` : ''}\n  }' | jq -r '.outputs[0].outputs[0].results.message.data.text'\n`;
+  const nodeCode = `// Node 18+ example using global fetch\nconst payload = {\n    input_value: \"${input_value || '<text>'}\",\n    output_type: \"chat\",\n    input_type: \"chat\"${sessionId ? `,\n    // Optional: Use session tracking if needed\n    session_id: \"${sessionId}\"` : ''}\n};\n\nconst options = {\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/json'${langflowApiKey ? ",\n        'x-api-key': '" + langflowApiKey + "'" : ""}\n    },\n    body: JSON.stringify(payload)\n};\n\nfetch('${langflowRunEndpoint}', options)\n    .then(response => response.json())\n    .then(data => {\n        // Print only the message\n        const msg = data?.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text;\n        if (msg) {\n            console.log(msg);\n        } else {\n            console.error('No message found in response:', data);\n        }\n    })\n    .catch(err => console.error(err));\n`;
+  const pythonCode = `# Python example using requests\nimport requests\nimport json\n\nurl = \"${langflowRunEndpoint}\"\npayload = {\n    \"input_value\": \"${input_value || '<text>'}\",\n    \"output_type\": \"chat\",\n    \"input_type\": \"chat\"${sessionId ? `,\n    # Optional: Use session tracking if needed\n    \"session_id\": \"${sessionId}\"` : ''}\n}\nheaders = {\n    'Content-Type': 'application/json'${langflowApiKey ? ",\n    'x-api-key': '" + langflowApiKey + "'" : ""}\n}\nres = requests.post(url, headers=headers, data=json.dumps(payload))\ndata = res.json()\n# Print only the message\ntry:\n    msg = data['outputs'][0]['outputs'][0]['results']['message']['data']['text']\n    print(msg)\nexcept (KeyError, IndexError, TypeError):\n    print('No message found in response:', data)\n`;
+  const curlCode = `curl -s -X POST \\\n  '${langflowRunEndpoint}' \\\n  -H 'Content-Type: application/json'${langflowApiKey ? ` \\\n  -H 'x-api-key: ${langflowApiKey}'` : ''} \\\n  -d '{\n    "input_value": "${input_value || '<text>'}",\n    "output_type": "chat",\n    "input_type": "chat"${sessionId ? `,\n    "session_id": "${sessionId}"` : ''}\n  }' | jq -r '.outputs[0].outputs[0].results.message.data.text'\n`;
 
   return (
     <div className="bg-[#19213a] rounded-xl shadow-lg p-4 md:p-8 border border-[#2a3b6e] w-full mx-auto">
@@ -81,14 +81,14 @@ export default function HelloWorldCard() {
               value={flowId}
               onChange={(e) => setFlowId(e.target.value)}
             />
-            <label htmlFor="textInput" className="font-semibold text-[#b3cfff]">Text Input</label>
+            <label htmlFor="input_value" className="font-semibold text-[#b3cfff]">Input Value</label>
             <input
-              id="textInput"
+              id="input_value"
               type="text"
               className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
               placeholder="Enter your message..."
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
+              value={input_value}
+              onChange={(e) => setInputValue(e.target.value)}
             />
             <label htmlFor="sessionId" className="font-semibold text-[#b3cfff]">Session ID (optional)</label>
             <input

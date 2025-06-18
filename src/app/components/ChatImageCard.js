@@ -17,7 +17,7 @@ export default function ChatImageCard() {
   const [host, setHost] = useState("http://127.0.0.1:7860");
   const [flowId, setFlowId] = useState("");
   const [fileComponentName, setFileComponentName] = useState("");
-  const [imageTextInput, setImageTextInput] = useState("");
+  const [input_value, setInputValue] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imageError, setImageError] = useState("");
   const [imageResponse, setImageResponse] = useState(null);
@@ -33,7 +33,7 @@ export default function ChatImageCard() {
       setImageError("Please provide Host, Flow ID, and File Component Name.");
       return;
     }
-    if (!imageTextInput || !imageFile) {
+    if (!input_value || !imageFile) {
       setImageError("Please provide both text input and an image file.");
       return;
     }
@@ -43,7 +43,7 @@ export default function ChatImageCard() {
     formData.append('host', host);
     formData.append('flowId', flowId);
     formData.append('fileComponentName', fileComponentName);
-    formData.append('textInput', imageTextInput);
+    formData.append('input_value', input_value);
     formData.append('file', imageFile);
     if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
     try {
@@ -76,7 +76,7 @@ export default function ChatImageCard() {
         path: uploadedFilePath
       }
     },
-    textInput: imageTextInput || '<text>'
+    textInput: input_value || '<text>'
   }, null, 2);
 
   const fileName = imageFile ? imageFile.name : 'yourimage.png';
@@ -103,7 +103,7 @@ const payload = {
       path: uploadedPath
     }
   },
-  textInput: "${imageTextInput || '<text>'}"
+  textInput: "${input_value || '<text>'}"
 };
 const runRes = await fetch('${langflowRunEndpoint}', {
   method: 'POST',
@@ -134,7 +134,7 @@ const uploadedPath = uploadData.file_path;
 
 // 3. Call the Langflow run endpoint with the uploaded file path
 const payload = {
-  input_value: "${imageTextInput || 'What is in this image?'}",
+  input_value: "${input_value || 'What is in this image?'}",
   output_type: "chat",
   input_type: "chat",
   tweaks: {
@@ -180,7 +180,7 @@ uploaded_path = uploaded_data.get('file_path')
 # 5. Call the Langflow run endpoint with the uploaded file path
 run_url = "${langflowRunEndpoint}"
 run_payload = {
-    "input_value": "${imageTextInput || 'What is in this image?'}",
+    "input_value": "${input_value || 'What is in this image?'}",
     "output_type": "chat",
     "input_type": "chat",
     "tweaks": {
@@ -232,7 +232,7 @@ curl -s --request POST \\
   -H "Accept: application/json"${langflowApiKey ? ` \\
   -H "x-api-key: ${langflowApiKey}"` : ''} \\
   -d '{
-    "input_value": "${imageTextInput ? imageTextInput.replace(/'/g, "\\'") : 'What is in this image?'}",
+    "input_value": "${input_value ? input_value.replace(/'/g, "\\'") : 'What is in this image?'}",
     "output_type": "chat",
     "input_type": "chat",
     "tweaks": {
@@ -280,14 +280,14 @@ curl -s --request POST \\
               value={fileComponentName}
               onChange={(e) => setFileComponentName(e.target.value)}
             />
-            <label htmlFor="imageTextInput" className="font-semibold text-[#b3cfff]">Text Input</label>
+            <label htmlFor="input_value" className="font-semibold text-[#b3cfff]">Input Value</label>
             <input
-              id="imageTextInput"
+              id="input_value"
               type="text"
               className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
               placeholder="what's in this image?"
-              value={imageTextInput}
-              onChange={(e) => setImageTextInput(e.target.value)}
+              value={input_value}
+              onChange={(e) => setInputValue(e.target.value)}
             />
             <label htmlFor="imageFile" className="font-semibold text-[#b3cfff]">Image File</label>
             <input

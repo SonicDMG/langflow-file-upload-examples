@@ -24,8 +24,8 @@ export async function POST(request) {
   // Get the file and text input from the form data
   const formData = await parseMultipartForm(request);
   const { file, tempPath, fileName, fileType } = getUploadedFile(formData);
-  let textInput = formData.fields.textInput;
-  if (Array.isArray(textInput)) textInput = textInput[0];
+  let input_value = formData.fields.input_value;
+  if (Array.isArray(input_value)) input_value = input_value[0];
   const hostRaw = formData.fields?.host || 'http://127.0.0.1:7860';
   const host = Array.isArray(hostRaw) ? hostRaw[0] : hostRaw;
   const flowIdRaw = formData.fields?.flowId;
@@ -86,7 +86,7 @@ export async function POST(request) {
 
   // Construct the payload for the Langflow agentic AI workflow
   const langflowPayload = {
-    input_value: textInput,
+    input_value: input_value,
     tweaks: {
       [fileComponentName]: { path: uploadedFilePath }
     }

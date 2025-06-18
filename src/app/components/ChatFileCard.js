@@ -17,7 +17,7 @@ export default function ChatFileCard() {
   const [host, setHost] = useState("http://127.0.0.1:7860");
   const [flowId, setFlowId] = useState("");
   const [fileComponentName, setFileComponentName] = useState("");
-  const [textInput, setTextInput] = useState("");
+  const [input_value, setInputValue] = useState("");
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [uploadResponse, setUploadResponse] = useState(null);
@@ -33,8 +33,8 @@ export default function ChatFileCard() {
       setError("Please provide Host, Flow ID, and File Component Name.");
       return;
     }
-    if (!textInput || !file) {
-      setError("Please provide both text input and a file.");
+    if (!input_value || !file) {
+      setError("Please provide both input value and a file.");
       return;
     }
     setError("");
@@ -43,7 +43,7 @@ export default function ChatFileCard() {
     formData.append('host', host);
     formData.append('flowId', flowId);
     formData.append('fileComponentName', fileComponentName);
-    formData.append('textInput', textInput);
+    formData.append('input_value', input_value);
     formData.append('file', file);
     if (langflowApiKey) formData.append('langflowApiKey', langflowApiKey);
     try {
@@ -76,7 +76,7 @@ export default function ChatFileCard() {
         path: uploadedFilePath
       }
     },
-    textInput: textInput || '<text>'
+    input_value: input_value || '<text>'
   }, null, 2);
 
   const fileName = file ? file.name : 'yourfile.txt';
@@ -103,7 +103,7 @@ const payload = {
       path: uploadedPath
     }
   },
-  textInput: "${textInput || '<text>'}"
+  input_value: "${input_value || '<text>'}"
 };
 const runRes = await fetch('${langflowRunEndpoint}', {
   method: 'POST',
@@ -134,7 +134,7 @@ const uploadedPath = uploadData.path;
 
 // 3. Call the Langflow run endpoint with the uploaded file path
 const payload = {
-  input_value: "${textInput || 'What is in this file?'}",
+  input_value: "${input_value || 'What is in this file?'}",
   output_type: "chat",
   input_type: "chat",
   tweaks: {
@@ -180,7 +180,7 @@ uploaded_path = uploaded_data.get('path')
 # 5. Call the Langflow run endpoint with the uploaded file path
 run_url = "${langflowRunEndpoint}"
 run_payload = {
-    "input_value": "${textInput || 'What is in this file?'}",
+    "input_value": "${input_value || 'What is in this file?'}",
     "output_type": "chat",
     "input_type": "chat",
     "tweaks": {
@@ -232,7 +232,7 @@ curl -s --request POST \\
   -H "Accept: application/json"${langflowApiKey ? ` \\
   -H "x-api-key: ${langflowApiKey}"` : ''} \\
   -d '{
-    "input_value": "${textInput ? textInput.replace(/'/g, "\\'") : 'What is in this file?'}",
+    "input_value": "${input_value ? input_value.replace(/'/g, "\\'") : 'What is in this file?'}",
     "output_type": "chat",
     "input_type": "chat",
     "tweaks": {
@@ -280,14 +280,14 @@ curl -s --request POST \\
               value={fileComponentName}
               onChange={(e) => setFileComponentName(e.target.value)}
             />
-            <label htmlFor="textInput" className="font-semibold text-[#b3cfff]">Text Input</label>
+            <label htmlFor="input_value" className="font-semibold text-[#b3cfff]">Input Value</label>
             <input
-              id="textInput"
+              id="input_value"
               type="text"
               className="rounded-lg px-4 py-3 bg-[#232e4a] border border-[#2a3b6e] text-[#b3cfff] placeholder-[#7ea2e3]"
               placeholder="Enter your message..."
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
+              value={input_value}
+              onChange={(e) => setInputValue(e.target.value)}
             />
             <label htmlFor="file" className="font-semibold text-[#b3cfff]">File</label>
             <input
