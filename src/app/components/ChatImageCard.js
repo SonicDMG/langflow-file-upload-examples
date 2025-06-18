@@ -71,12 +71,14 @@ export default function ChatImageCard() {
   const uploadedFilePath = imageResponse?.file_path || imageResponse?.langflowFileUploadResponse?.file_path || imageResponse?.path || imageResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/image";
 
   const payloadPreview = JSON.stringify({
-    tweaks: {
-      [fileComponentName || 'File-Component-Name']: {
-        path: uploadedFilePath
+    input_value: input_value || '<text>',
+    output_type: 'chat',
+    input_type: 'chat',
+    tweaks: fileComponentName ? {
+      [fileComponentName]: {
+        files: uploadedFilePath ? [uploadedFilePath] : []
       }
-    },
-    textInput: input_value || '<text>'
+    } : undefined
   }, null, 2);
 
   const fileName = imageFile ? imageFile.name : 'yourimage.png';

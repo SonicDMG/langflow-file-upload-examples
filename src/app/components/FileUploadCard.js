@@ -70,11 +70,14 @@ export default function FileUploadCard() {
   const uploadedFilePath = fileOnlyResponse?.path || fileOnlyResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/file";
 
   const payloadPreview = JSON.stringify({
-    tweaks: {
-      [fileComponentName || 'File-Component-Name']: {
+    input_value: 'Analyze this file',
+    output_type: 'chat',
+    input_type: 'text',
+    tweaks: fileComponentName ? {
+      [fileComponentName]: {
         path: uploadedFilePath
       }
-    }
+    } : undefined
   }, null, 2);
 
   const fileName = fileOnly ? fileOnly.name : 'yourfile.txt';
@@ -134,7 +137,7 @@ const uploadedPath = uploadData.path;
 const payload = {
   input_value: "Analyze this file",
   output_type: "chat",
-  input_type: "chat",
+  input_type: "text",
   tweaks: {
     '${fileComponentName || 'File-Component-Name'}': {
       path: uploadedPath
@@ -180,7 +183,7 @@ run_url = "${langflowRunEndpoint}"
 run_payload = {
     "input_value": "Analyze this file",
     "output_type": "chat",
-    "input_type": "chat",
+    "input_type": "text",
     "tweaks": {
         "${fileComponentName || 'File-Component-Name'}": {
             "path": uploaded_path
@@ -232,7 +235,7 @@ curl -s --request POST \\
   -d '{
     "input_value": "Analyze this file",
     "output_type": "chat",
-    "input_type": "chat",
+    "input_type": "text",
     "tweaks": {
       "${fileComponentName || 'File-Component-Name'}": {
         "path": "'"$uploaded_path"'"

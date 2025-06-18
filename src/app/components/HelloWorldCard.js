@@ -48,7 +48,12 @@ export default function HelloWorldCard() {
 
   const safeHost = host || "http://127.0.0.1:7860";
   const langflowRunEndpoint = flowId ? `${safeHost.replace(/\/$/, "")}/api/v1/run/${flowId}` : `${safeHost.replace(/\/$/, "")}/api/v1/run/<flowId>`;
-  const payloadPreview = JSON.stringify({ input_value: input_value || '<text>' }, null, 2);
+  const payloadPreview = JSON.stringify({
+    input_value: input_value || '<text>',
+    output_type: 'chat',
+    input_type: 'chat',
+    ...(sessionId ? { session_id: sessionId } : {})
+  }, null, 2);
 
   const sessionIdForExample = sessionId || "user_1";
   const nodeCode = `// Node 18+ example using global fetch\nconst payload = {\n    input_value: \"${input_value || '<text>'}\",\n    output_type: \"chat\",\n    input_type: \"chat\"${sessionId ? `,\n    // Optional: Use session tracking if needed\n    session_id: \"${sessionId}\"` : ''}\n};\n\nconst options = {\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/json'${langflowApiKey ? ",\n        'x-api-key': '" + langflowApiKey + "'" : ""}\n    },\n    body: JSON.stringify(payload)\n};\n\nfetch('${langflowRunEndpoint}', options)\n    .then(response => response.json())\n    .then(data => {\n        // Print only the message\n        const msg = data?.outputs?.[0]?.outputs?.[0]?.results?.message?.data?.text;\n        if (msg) {\n            console.log(msg);\n        } else {\n            console.error('No message found in response:', data);\n        }\n    })\n    .catch(err => console.error(err));\n`;

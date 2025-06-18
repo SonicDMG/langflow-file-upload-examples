@@ -71,12 +71,14 @@ export default function ChatFileCard() {
   const uploadedFilePath = uploadResponse?.langflowFileUploadResponse?.path || "/path/to/uploaded/file";
 
   const payloadPreview = JSON.stringify({
-    tweaks: {
-      [fileComponentName || 'File-Component-Name']: {
+    input_value: input_value || '<text>',
+    output_type: 'chat',
+    input_type: 'chat',
+    tweaks: fileComponentName ? {
+      [fileComponentName]: {
         path: uploadedFilePath
       }
-    },
-    input_value: input_value || '<text>'
+    } : undefined
   }, null, 2);
 
   const fileName = file ? file.name : 'yourfile.txt';
