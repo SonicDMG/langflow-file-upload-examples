@@ -114,7 +114,7 @@ const runData = await runRes.json();
 console.log(runData);
 `;
 
-  const nodeCode = `// Node.js 18+ example using global fetch, FormData, and Blob
+  const nodeCode = `// Node 18+ example using global fetch, FormData, and Blob
 import fs from 'fs/promises';
 
 // 1. Prepare the form data with the image to upload
@@ -347,8 +347,8 @@ curl -s --request POST \\
           <ResponseSection response={imageResponse} title="Upload Response" colorClass="text-[#4ade80]" />
           <CodeSection
             codeExamples={[
-              { label: 'Node.js', code: nodeCode, language: 'javascript' },
               { label: 'Python', code: pythonCode, language: 'python' },
+              { label: 'Javascript', code: nodeCode, language: 'javascript' },
               { label: 'cURL', code: curlCode, language: 'bash' }
             ]}
             title="Example Code"

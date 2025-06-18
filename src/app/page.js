@@ -13,7 +13,7 @@ const TAB_INFO = [
     explanation: {
       heading: "Hello World Chat",
       text: "A simple chat input that sends a message to Langflow. No file upload required. Great for basic text-only flows.",
-      apiVersion: "Uses Langflow File API v2 (Text Only)"
+      apiVersion: "Uses Langflow Run API v1 (Text Only)"
     }
   },
   {
