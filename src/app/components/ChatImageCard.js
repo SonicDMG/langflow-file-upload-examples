@@ -83,39 +83,6 @@ export default function ChatImageCard() {
 
   const fileName = imageFile ? imageFile.name : 'yourimage.png';
 
-  const browserCode = `// 1. Get the image file from the file picker
-const fileInput = document.getElementById("imageFile");
-const file = fileInput.files[0];
-// User selected: ${fileName}
-
-// 2. Upload the image to Langflow
-const fileForm = new FormData();
-fileForm.append('file', file);
-const uploadRes = await fetch('${fileUploadEndpoint}', {
-  method: 'POST',
-  body: fileForm,${langflowApiKey ? "\n  headers: { 'x-api-key': '" + langflowApiKey + "' }," : ""}
-});
-const uploadData = await uploadRes.json();
-const uploadedPath = uploadData.file_path || uploadData.path;
-
-// 3. Call the Langflow run endpoint
-const payload = {
-  tweaks: {
-    '${fileComponentName || 'File-Component-Name'}': {
-      path: uploadedPath
-    }
-  },
-  textInput: "${input_value || '<text>'}"
-};
-const runRes = await fetch('${langflowRunEndpoint}', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
-  body: JSON.stringify(payload)
-});
-const runData = await runRes.json();
-console.log(runData);
-`;
-
   const nodeCode = `// Node 18+ example using global fetch, FormData, and Blob
 import fs from 'fs/promises';
 

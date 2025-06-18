@@ -83,39 +83,6 @@ export default function ChatFileCard() {
 
   const fileName = file ? file.name : 'yourfile.txt';
 
-  const browserCode = `// 1. Get the file from the file picker
-const fileInput = document.getElementById("file");
-const file = fileInput.files[0];
-// User selected: ${fileName}
-
-// 2. Upload the file to Langflow
-const fileForm = new FormData();
-fileForm.append('file', file);
-const uploadRes = await fetch('${fileUploadEndpoint}', {
-  method: 'POST',
-  body: fileForm,${langflowApiKey ? "\n  headers: { 'x-api-key': '" + langflowApiKey + "' }," : ""}
-});
-const uploadData = await uploadRes.json();
-const uploadedPath = uploadData.file_path || uploadData.path;
-
-// 3. Call the Langflow run endpoint
-const payload = {
-  tweaks: {
-    '${fileComponentName || 'File-Component-Name'}': {
-      path: uploadedPath
-    }
-  },
-  input_value: "${input_value || '<text>'}"
-};
-const runRes = await fetch('${langflowRunEndpoint}', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json'${langflowApiKey ? ", 'x-api-key': '" + langflowApiKey + "'" : ""} },
-  body: JSON.stringify(payload)
-});
-const runData = await runRes.json();
-console.log(runData);
-`;
-
   const nodeCode = `// Node 18+ example using global fetch, FormData, and Blob
 import fs from 'fs/promises';
 
