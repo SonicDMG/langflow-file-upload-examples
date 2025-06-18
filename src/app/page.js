@@ -3,8 +3,19 @@ import React, { useState } from "react";
 import FileUploadCard from "./components/FileUploadCard";
 import ChatFileCard from "./components/ChatFileCard";
 import ChatImageCard from "./components/ChatImageCard";
+import HelloWorldCard from "./components/HelloWorldCard";
 
 const TAB_INFO = [
+  {
+    key: "helloWorld",
+    label: "Hello World",
+    card: <HelloWorldCard />,
+    explanation: {
+      heading: "Hello World Chat",
+      text: "A simple chat input that sends a message to Langflow. No file upload required. Great for basic text-only flows.",
+      apiVersion: "Uses Langflow File API v2 (Text Only)"
+    }
+  },
   {
     key: "fileOnly",
     label: "File Only",
